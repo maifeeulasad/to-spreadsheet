@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "npm to package to create spreadsheet in node environment",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build":"npx tsc",
+    "test:compile": "npx ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -14,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/maifeeulasad/to-spreadsheet/issues"
   },
-  "homepage": "https://github.com/maifeeulasad/to-spreadsheet#readme"
+  "homepage": "https://github.com/maifeeulasad/to-spreadsheet#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.35",
+    "ts-node": "^10.8.0",
+    "typescript": "^4.7.2"
+  }
 }
