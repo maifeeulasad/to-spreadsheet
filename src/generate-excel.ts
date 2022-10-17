@@ -6,6 +6,7 @@ import {generateWorkBookXmlRels} from "./xl/_rels/workbook.xml.rels";
 import {generateTheme1} from "./xl/theme/theme1.xml";
 import {generateSheet1Xml, ICellEntry} from "./xl/worksheets/sheet1.xml";
 import {generateStyleXml} from "./xl/styles.xml";
+import {generateWorkBookXml} from "./xl/workbook.xml";
 
 const fs = require('fs');
 const archiver = require('archiver');
@@ -19,6 +20,7 @@ const generateTree = (data:ICellEntry[][]) => { return{
     "xl/theme/theme1.xml": generateTheme1() ,
     "xl/worksheets/sheet1.xml": generateSheet1Xml(data) ,
     "xl/styles.xml": generateStyleXml(),
+    "xl/workbook.xml": generateWorkBookXml(),
 }
 }
 
