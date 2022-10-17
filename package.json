@@ -16,6 +16,9 @@
     "url": "https://github.com/maifeeulasad/to-spreadsheet/issues"
   },
   "homepage": "https://github.com/maifeeulasad/to-spreadsheet#readme",
+  "dependencies": {
+    "archiver": "^5.3.1"
+  },
   "devDependencies": {
     "@types/node": "^17.0.35",
     "ts-node": "^10.8.0",

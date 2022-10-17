@@ -6,3 +6,5 @@ const generateWorkBookXmlRels = () =>
     <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml" />
 </Relationships>
 `;
+
+export {generateWorkBookXmlRels}

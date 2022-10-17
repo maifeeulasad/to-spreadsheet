@@ -48,3 +48,5 @@ const generateStyleXml = () =>
     </extLst>
 </styleSheet>
 `;
+
+export {generateStyleXml}

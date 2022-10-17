@@ -47,3 +47,5 @@ const generateAppXml = () =>
     </AppVersion>
 </Properties>
 `;
+
+export {generateAppXml}

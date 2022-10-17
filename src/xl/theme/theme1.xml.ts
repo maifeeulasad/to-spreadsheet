@@ -293,3 +293,5 @@ const generateTheme1 = () =>
     </extLst>
 </theme>
 `;
+
+export {generateTheme1}

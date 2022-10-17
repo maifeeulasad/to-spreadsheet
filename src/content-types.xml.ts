@@ -11,3 +11,5 @@ const generateContentTypesXml = () =>
     <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" />
 </Types>
 `;
+
+export  {generateContentTypesXml}
