@@ -1,6 +1,6 @@
 {
   "name": "to-spreadsheet",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "npm to package to create spreadsheet in node environment",
   "scripts": {
     "build": "npx tsc",
