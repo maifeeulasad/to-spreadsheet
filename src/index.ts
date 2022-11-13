@@ -1,4 +1,4 @@
-import {generateExcel} from "./generate-excel";
+import { generateExcel } from "./generate-excel";
 
 let data = [
   [
@@ -40,3 +40,5 @@ let data = [
 ];
 
 generateExcel(data);
+
+export { generateExcel };
