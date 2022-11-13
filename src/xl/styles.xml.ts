@@ -49,4 +49,4 @@ const generateStyleXml = () =>
 </styleSheet>
 `;
 
-export {generateStyleXml}
+export { generateStyleXml };

@@ -7,4 +7,4 @@ const generateWorkBookXmlRels = () =>
 </Relationships>
 `;
 
-export {generateWorkBookXmlRels}
+export { generateWorkBookXmlRels };

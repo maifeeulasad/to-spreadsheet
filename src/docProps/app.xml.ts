@@ -48,4 +48,4 @@ const generateAppXml = () =>
 </Properties>
 `;
 
-export {generateAppXml}
+export { generateAppXml };

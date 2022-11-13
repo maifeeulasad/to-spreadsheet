@@ -294,4 +294,4 @@ const generateTheme1 = () =>
 </theme>
 `;
 
-export {generateTheme1}
+export { generateTheme1 };

@@ -12,4 +12,4 @@ const generateContentTypesXml = () =>
 </Types>
 `;
 
-export  {generateContentTypesXml}
+export { generateContentTypesXml };
