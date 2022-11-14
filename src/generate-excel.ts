@@ -57,8 +57,8 @@ const generateExcel = (data: ICellEntry[][]) => {
 
   archive.pipe(output);
 
-  Object.entries(generateTree(data)).map((value) => {
-    archive.append(value[1], { name: value[0] });
+  Object.entries(generateTree(data)).map(([filename, fileContent]) => {
+    archive.append(fileContent, { name: filename });
   });
 
   archive.finalize();

@@ -2,8 +2,10 @@
   "name": "to-spreadsheet",
   "version": "0.0.3",
   "description": "npm to package to create spreadsheet in node environment",
+  "main": "src/index.ts",
   "scripts": {
-    "build": "npx tsc",
+    "prepare": "npm run build",
+    "build": "tsc",
     "test:compile": "npx ts-node src/index.ts"
   },
   "repository": {
@@ -20,6 +22,7 @@
     "archiver": "^5.3.1",
     "date-fns": "^2.29.3"
   },
+  "files": ["lib"],
   "devDependencies": {
     "@types/node": "^17.0.35",
     "ts-node": "^10.8.0",

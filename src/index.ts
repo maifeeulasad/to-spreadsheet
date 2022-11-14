@@ -1,6 +1,6 @@
 import { generateExcel } from "./generate-excel";
 
-let data = [
+let sampleData = [
   [
     { readOnly: true, value: "" },
     { value: "A", readOnly: true },
@@ -39,6 +39,6 @@ let data = [
   ],
 ];
 
-generateExcel(data);
+// generateExcel(sampleData);
 
-export { generateExcel };
+export { generateExcel, sampleData };
