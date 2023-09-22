@@ -33,3 +33,7 @@ generateExcel(sampleData);
 // or you can directly call it with workbook data-structure
 generateExcelWorkbook(sampleWorkbookData)
 ```
+
+# Package Details
+ - package size:  9.2 kB
+ - unpacked size: 38.0 kB
