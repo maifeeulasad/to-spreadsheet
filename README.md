@@ -11,7 +11,6 @@ https://www.npmjs.com/package/to-spreadsheet
 
 # Usage
 ```ts
-
 import { generateExcel , generateExcelWorkbook } from 'to-spreadsheet/lib/index';
 // import { generateExcel , generateExcelWorkbook } from 'to-spreadsheet/lib/index.js'; // <-- if your compiler gives your some import error message, import this instead
 

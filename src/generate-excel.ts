@@ -29,7 +29,7 @@ const generateTree = (workbook: IWorkbook) => {
 };
 
 
-const generateExcel = (dump: IPage[]) => {
+const generateExcel = (dump: IPage[]): Promise<void> => {
   const strings: string[] = []
   const sheets: ISheet[] = dump.map(({ title, content }) => {
     const rows = content.map(row => {
@@ -58,47 +58,49 @@ const generateExcel = (dump: IPage[]) => {
     filename: "tem.xlsx"
   };
 
-  generateExcelWorkbook(workbook)
-
+  return generateExcelWorkbook(workbook)
 }
 
-const generateExcelWorkbook = (workbook: IWorkbook) => {
-  const output = fs.createWriteStream(`${__dirname}/${workbook.filename}.xlsx`);
-  const archive = archiver("zip", {
-    zlib: { level: 9 },
+const generateExcelWorkbook = (workbook: IWorkbook): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(`${__dirname}/${workbook.filename}.xlsx`);
+    const archive = archiver("zip", {
+      zlib: { level: 9 },
+    });
+
+    output.on("close", function () {
+      console.debug(archive.pointer() + " total bytes");
+      console.debug(
+        "archiver has been finalized and the output file descriptor has closed."
+      );
+      resolve();  // Resolve the promise when the archive is completed and closed
+    });
+
+    output.on("end", function () {
+      console.debug("Data has been drained");
+    });
+
+    archive.on("warning", function (err: any) {
+      if (err.code === "ENOENT") {
+        // log warning
+      } else {
+        // throw error, but also reject the promise
+        reject(err);
+      }
+    });
+
+    archive.on("error", function (err: any) {
+      reject(err);  // Reject the promise on error
+    });
+
+    archive.pipe(output);
+
+    Object.entries(generateTree(workbook)).map(([filename, fileContent]) => {
+      archive.append(fileContent, { name: filename });
+    });
+
+    archive.finalize();
   });
-
-  output.on("close", function () {
-    console.debug(archive.pointer() + " total bytes");
-    console.debug(
-      "archiver has been finalized and the output file descriptor has closed."
-    );
-  });
-
-  output.on("end", function () {
-    console.debug("Data has been drained");
-  });
-
-  archive.on("warning", function (err: any) {
-    if (err.code === "ENOENT") {
-      // log warning
-    } else {
-      // throw error
-      throw err;
-    }
-  });
-
-  archive.on("error", function (err: any) {
-    throw err;
-  });
-
-  archive.pipe(output);
-
-  Object.entries(generateTree(workbook)).map(([filename, fileContent]) => {
-    archive.append(fileContent, { name: filename });
-  });
-
-  archive.finalize();
 };
 
 export { generateExcel, generateExcelWorkbook };
