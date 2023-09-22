@@ -12,7 +12,8 @@ https://www.npmjs.com/package/to-spreadsheet
 # Usage
 ```ts
 
-import { generateExcel , generateExcelWorkbook } from 'to-spreadsheet';
+import { generateExcel , generateExcelWorkbook } from 'to-spreadsheet/lib/index';
+// import { generateExcel , generateExcelWorkbook } from 'to-spreadsheet/lib/index.js'; // <-- if your compiler gives your some import error message, import this instead
 
 const sampleData = [
   {
@@ -35,5 +36,5 @@ generateExcelWorkbook(sampleWorkbookData)
 ```
 
 # Package Details
- - package size:  9.2 kB
- - unpacked size: 38.0 kB
+ - package size: `9.2 kB`
+ - unpacked size: `38.0 kB`
