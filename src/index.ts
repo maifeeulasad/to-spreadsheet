@@ -1,44 +1,52 @@
-import { generateExcel } from "./generate-excel";
+import { generateExcel, generateExcelWorkbook } from "./generate-excel";
 
-let sampleData = [
-  [
-    { readOnly: true, value: "" },
-    { value: "A", readOnly: true },
-    { value: "B", readOnly: true },
-    { value: "C", readOnly: true },
-    { value: "D", readOnly: true },
-    { value: "D", readOnly: true },
-  ],
-  [
-    { readOnly: true, value: 1 },
-    { value: 1 },
-    { value: 3 },
-    { value: 3 },
-    { value: 3 },
-  ],
-  [
-    { readOnly: true, value: 2 },
-    { value: 2 },
-    { value: 4 },
-    { value: 4 },
-    { value: 4 },
-  ],
-  [
-    { readOnly: true, value: 3 },
-    { value: 1 },
-    { value: 3 },
-    { value: 3 },
-    { value: 3 },
-  ],
-  [
-    { readOnly: true, value: 4 },
-    { value: 2 },
-    { value: 4 },
-    { value: 4 },
-    { value: 4 },
-  ],
-];
+enum ICellType {
+  string = "s",
+  number = "n"
+}
+
+interface ICell {
+  type: ICellType;
+  value: any;
+}
+
+interface IRows {
+  cells: ICell[];
+}
+
+interface ISheet {
+  title: string;
+  rows: IRows[];
+}
+
+interface IWorkbook {
+  filename: string;
+  sheets: ISheet[];
+  strings: string[];
+}
+
+interface IPage {
+  title: string
+  content: (string | number)[][]
+}
+
+export { ICell, ISheet, IWorkbook, IRows, ICellType, IPage }
+
+
+const sampleData = [
+  {
+    title: 'Maifee1', content: [
+      ['meaw', 'grrr'],
+      ['woof', 'smack'],
+      [1],
+      [1, 2],
+      [1, 2, 3],
+    ]
+  },
+  { title: 'Maifee2', content: [[1], [1, 2]] },
+  { title: 'Maifee3', content: [['meaw', "meaw"], ["woof", 'woof']] }
+]
 
 // generateExcel(sampleData);
 
-export { generateExcel, sampleData };
+export { generateExcel, generateExcelWorkbook, sampleData };
