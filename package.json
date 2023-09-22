@@ -1,7 +1,7 @@
 {
   "name": "to-spreadsheet",
-  "version": "0.1.0",
-  "description": "npm to package to create spreadsheet in node environment",
+  "version": "1.0.0",
+  "description": "npm package to create spreadsheet in node environment",
   "main": "src/index.ts",
   "scripts": {
     "prepare": "npm run build",
