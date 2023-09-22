@@ -47,6 +47,4 @@ const sampleData = [
   { title: 'Maifee3', content: [['meaw', "meaw"], ["woof", 'woof']] }
 ]
 
-// generateExcel(sampleData);
-
 export { generateExcel, generateExcelWorkbook, sampleData };
