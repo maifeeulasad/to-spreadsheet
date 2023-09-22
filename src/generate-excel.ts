@@ -1,32 +1,69 @@
+import { generateContentTypesXml } from "./content-types.xml";
 import { generateRels } from "./_rels/.rels";
 import { generateAppXml } from "./docProps/app.xml";
 import { generateCoreXml } from "./docProps/core.xml";
-import { generateContentTypesXml } from "./content-types.xml";
 import { generateWorkBookXmlRels } from "./xl/_rels/workbook.xml.rels";
-import { generateTheme1 } from "./xl/theme/theme1.xml";
-import { generateSheet1Xml, ICellEntry } from "./xl/worksheets/sheet1.xml";
+import { generateSharedStrings } from "./xl/sharedStrings.xml";
 import { generateStyleXml } from "./xl/styles.xml";
+import { generateTheme1 } from "./xl/theme/theme1.xml";
 import { generateWorkBookXml } from "./xl/workbook.xml";
+import { generateSheetXml } from "./xl/worksheets/sheet.xml";
+import { ICellType, IPage, ISheet, IWorkbook } from "./index"
 
 const fs = require("fs");
 const archiver = require("archiver");
 
-const generateTree = (data: ICellEntry[][]) => {
+const generateTree = (workbook: IWorkbook) => {
   return {
-    "[Content_Types].xml": generateContentTypesXml(),
+    "[Content_Types].xml": generateContentTypesXml(workbook),
     "_rels/.rels": generateRels(),
-    "docProps/app.xml": generateAppXml(),
-    "docProps/core.xml": generateCoreXml(),
-    "xl/_rels/workbook.xml.rels": generateWorkBookXmlRels(),
-    "xl/theme/theme1.xml": generateTheme1(),
-    "xl/worksheets/sheet1.xml": generateSheet1Xml(data),
+    "docProps/app.xml": generateAppXml(workbook),
+    "docProps/core.xml": generateCoreXml({}),
+    "xl/_rels/workbook.xml.rels": generateWorkBookXmlRels(workbook),
+    "xl/sharedStrings.xml": generateSharedStrings(workbook),
     "xl/styles.xml": generateStyleXml(),
-    "xl/workbook.xml": generateWorkBookXml(),
+    "xl/theme/theme1.xml": generateTheme1(),
+    "xl/workbook.xml": generateWorkBookXml(workbook),
+    ...workbook.sheets.reduce((acc, sheet, idx) => ({ ...acc, [`xl/worksheets/sheet${idx + 1}.xml`]: generateSheetXml(sheet) }), {})
   };
 };
 
-const generateExcel = (data: ICellEntry[][]) => {
-  const output = fs.createWriteStream(__dirname + "/example.xlsx");
+
+const generateExcel = (dump: IPage[]) => {
+  const strings: string[] = []
+  const sheets: ISheet[] = dump.map(({ title, content }) => {
+    const rows = content.map(row => {
+      const cells = row.map(content => {
+        const isString = typeof content === 'string';
+        const type = isString ? ICellType.string : ICellType.number;
+        let value = isString ? strings.indexOf(content) : content;
+
+        if (isString && value === -1) {
+          strings.push(content);
+          value = strings.length - 1;
+        }
+
+        return { type, value };
+      });
+
+      return { cells };
+    });
+
+    return { title, rows };
+  });
+
+  const workbook: IWorkbook = {
+    sheets,
+    strings,
+    filename: "tem.xlsx"
+  };
+
+  generateExcelWorkbook(workbook)
+
+}
+
+const generateExcelWorkbook = (workbook: IWorkbook) => {
+  const output = fs.createWriteStream(`${__dirname}/${workbook.filename}.xlsx`);
   const archive = archiver("zip", {
     zlib: { level: 9 },
   });
@@ -57,11 +94,11 @@ const generateExcel = (data: ICellEntry[][]) => {
 
   archive.pipe(output);
 
-  Object.entries(generateTree(data)).map(([filename, fileContent]) => {
+  Object.entries(generateTree(workbook)).map(([filename, fileContent]) => {
     archive.append(fileContent, { name: filename });
   });
 
   archive.finalize();
 };
 
-export { generateExcel };
+export { generateExcel, generateExcelWorkbook };
