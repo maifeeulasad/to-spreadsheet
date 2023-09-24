@@ -1,12 +1,16 @@
 # to-spreadsheet
-npm to package to create spreadsheet in node environment
+npm package to create spreadsheet in node environment
+
+
+[![npm version](https://img.shields.io/npm/v/to-spreadsheet.svg)](https://www.npmjs.com/package/to-spreadsheet)
+[![minified](https://badgen.net/bundlephobia/min/to-spreadsheet)](https://bundlephobia.com/result?p=to-spreadsheet)
+[![minified + gzipped](https://badgen.net/bundlephobia/minzip/to-spreadsheet)](https://bundlephobia.com/result?p=to-spreadsheet)
 
 
 # NPM
 ```
 npm i to-spreadsheet
 ```
-https://www.npmjs.com/package/to-spreadsheet
 
 
 # Usage
@@ -33,7 +37,3 @@ generateExcel(sampleData);
 // or you can directly call it with workbook data-structure
 generateExcelWorkbook(sampleWorkbookData)
 ```
-
-# Package Details
- - package size: `9.2 kB`
- - unpacked size: `38.0 kB`
