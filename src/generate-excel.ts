@@ -8,10 +8,7 @@ import { generateStyleXml } from "./xl/styles.xml";
 import { generateTheme1 } from "./xl/theme/theme1.xml";
 import { generateWorkBookXml } from "./xl/workbook.xml";
 import { generateSheetXml } from "./xl/worksheets/sheet.xml";
-import { ICellType, IPage, ISheet, IWorkbook } from "./index"
-
-const fs = require("fs");
-const archiver = require("archiver");
+import { ICellType, IPage, ISheet, IWorkbook } from "./index";
 
 const generateTree = (workbook: IWorkbook) => {
   return {
@@ -63,12 +60,16 @@ const generateExcel = (dump: IPage[]): Promise<void> => {
 
 const generateExcelWorkbook = (workbook: IWorkbook): Promise<void> => {
   return new Promise((resolve, reject) => {
+
+    const fs = require('fs');
+    const archiver = require('archiver');
+
     const output = fs.createWriteStream(`${__dirname}/${workbook.filename}.xlsx`);
     const archive = archiver("zip", {
       zlib: { level: 9 },
     });
 
-    output.on("close", function () {
+    output.on("close", () => {
       console.debug(archive.pointer() + " total bytes");
       console.debug(
         "archiver has been finalized and the output file descriptor has closed."
@@ -76,7 +77,7 @@ const generateExcelWorkbook = (workbook: IWorkbook): Promise<void> => {
       resolve();  // Resolve the promise when the archive is completed and closed
     });
 
-    output.on("end", function () {
+    output.on("end", () => {
       console.debug("Data has been drained");
     });
 
@@ -103,4 +104,29 @@ const generateExcelWorkbook = (workbook: IWorkbook): Promise<void> => {
   });
 };
 
-export { generateExcel, generateExcelWorkbook };
+const generateExcelWorkbookFe = (workbook: IWorkbook): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    try {
+
+      const JSZip = require('jszip');
+      const { saveAs } = require('file-saver');
+
+      const zip = new JSZip();
+      const tree = generateTree(workbook);
+
+      Object.entries(tree).forEach(([filename, fileContent]) => {
+        zip.file(filename, fileContent);
+      });
+
+      zip.generateAsync({ type: "blob" }).then((blob: Blob) => {
+        saveAs(blob, `${workbook.filename}.xlsx`);
+        resolve();
+      });
+
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export { generateExcel, generateExcelWorkbook, generateExcelWorkbookFe };

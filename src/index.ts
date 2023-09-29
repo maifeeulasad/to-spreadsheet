@@ -1,4 +1,4 @@
-import { generateExcel, generateExcelWorkbook } from "./generate-excel";
+import { generateExcel, generateExcelWorkbook, generateExcelWorkbookFe } from "./generate-excel";
 
 enum ICellType {
   string = "s",
@@ -47,4 +47,4 @@ const sampleData = [
   { title: 'Maifee3', content: [['meaw', "meaw"], ["woof", 'woof']] }
 ]
 
-export { generateExcel, generateExcelWorkbook, sampleData };
+export { generateExcel, generateExcelWorkbook, generateExcelWorkbookFe, sampleData };
