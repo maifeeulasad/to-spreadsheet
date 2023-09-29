@@ -137,4 +137,4 @@ const generateExcelWorkbookBrowser = (workbook: IWorkbook): Promise<void> => {
   });
 };
 
-export { generateExcel };
+export { generateExcel, EnvironmentType };
