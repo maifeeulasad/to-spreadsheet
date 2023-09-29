@@ -15,8 +15,7 @@ npm i to-spreadsheet
 
 # Usage
 ```ts
-import { generateExcel , generateExcelWorkbook } from 'to-spreadsheet/lib/index';
-// import { generateExcel , generateExcelWorkbook } from 'to-spreadsheet/lib/index.js'; // <-- if your compiler gives your some import error message, import this instead
+import { generateExcel , EnvironmentType } from 'to-spreadsheet/lib/index';
 
 const sampleData = [
   {
@@ -32,8 +31,6 @@ const sampleData = [
   { title: 'Maifee3', content: [['meaw', "meaw"], ["woof", 'woof']] }
 ]
 
-generateExcel(sampleData);
-
-// or you can directly call it with workbook data-structure
-generateExcelWorkbook(sampleWorkbookData)
+generateExcel(sampleData); // <-- by default generate XLSX for node
+generateExcel(sampleData, EnvironmentType.BROWSER); // <-- for browser
 ```
