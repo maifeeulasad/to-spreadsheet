@@ -25,8 +25,12 @@ const generateTree = (workbook: IWorkbook) => {
   };
 };
 
+enum EnvironmentType {
+  NODE,
+  BROWSER,
+}
 
-const generateExcel = (dump: IPage[]): Promise<void> => {
+const generateExcel = (dump: IPage[], environmentType: EnvironmentType = EnvironmentType.BROWSER): Promise<void> => {
   const strings: string[] = []
   const sheets: ISheet[] = dump.map(({ title, content }) => {
     const rows = content.map(row => {
@@ -55,10 +59,14 @@ const generateExcel = (dump: IPage[]): Promise<void> => {
     filename: "tem.xlsx"
   };
 
-  return generateExcelWorkbook(workbook)
+  if (environmentType === EnvironmentType.BROWSER) {
+    return generateExcelWorkbookBrowser(workbook);
+  } else {
+    return generateExcelWorkbookNode(workbook);
+  }
 }
 
-const generateExcelWorkbook = (workbook: IWorkbook): Promise<void> => {
+const generateExcelWorkbookNode = (workbook: IWorkbook): Promise<void> => {
   return new Promise((resolve, reject) => {
 
     const fs = require('fs');
@@ -104,7 +112,7 @@ const generateExcelWorkbook = (workbook: IWorkbook): Promise<void> => {
   });
 };
 
-const generateExcelWorkbookFe = (workbook: IWorkbook): Promise<void> => {
+const generateExcelWorkbookBrowser = (workbook: IWorkbook): Promise<void> => {
   return new Promise((resolve, reject) => {
     try {
 
@@ -129,4 +137,4 @@ const generateExcelWorkbookFe = (workbook: IWorkbook): Promise<void> => {
   });
 };
 
-export { generateExcel, generateExcelWorkbook, generateExcelWorkbookFe };
+export { generateExcel };
