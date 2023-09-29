@@ -19,10 +19,12 @@
   },
   "homepage": "https://github.com/maifeeulasad/to-spreadsheet#readme",
   "dependencies": {
-    "archiver": "^5.3.1",
-    "date-fns": "^2.29.3"
+    "archiver": "^6.0.1",
+    "date-fns": "^2.30.0"
   },
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "devDependencies": {
     "@types/node": "^17.0.35",
     "ts-node": "^10.8.0",
