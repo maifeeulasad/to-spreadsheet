@@ -19,7 +19,7 @@ npm i to-spreadsheet
 [![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/s/to-spreadsheet-example-hdmrvc?file=/src/App.tsx)
 
 ```ts
-import { generateExcel , EnvironmentType, skipCell } from 'to-spreadsheet/lib/index';
+import { generateExcel , EnvironmentType, skipCell, writeEquation } from 'to-spreadsheet/lib/index';
 
 const sampleData = [
   {
@@ -28,7 +28,7 @@ const sampleData = [
       ['woof', 'smack'],
       [1],
       [1, 2],
-      [1, 2, 3],
+      [1, 2, 3, writeEquation('SUM(A5,C5)')],
     ]
   },
   { title: 'Maifee2', content: [[1], [1, skipCell(3), 2]] },
