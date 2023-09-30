@@ -33,4 +33,14 @@ class SkipCell {
 
 const skipCell = (skipCell: number) => new SkipCell(skipCell);
 
-export { indexToVbIndex, indexToVbRelationIndex, indexToRowIndex, rowColumnToVbPosition, calculateExtant, SkipCell, skipCell }
+class Equation {
+    private equation: string;
+    public getEquation = () => this.equation;
+    constructor(equation: string) {
+        this.equation = equation;
+    }
+}
+
+const writeEquation = (equation: string) => new Equation(equation);
+
+export { indexToVbIndex, indexToVbRelationIndex, indexToRowIndex, rowColumnToVbPosition, calculateExtant, SkipCell, skipCell, Equation, writeEquation }
