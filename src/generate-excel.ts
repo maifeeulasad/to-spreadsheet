@@ -93,7 +93,7 @@ const generateExcelWorkbookNode = (workbook: IWorkbook): Promise<void> => {
       console.debug("Data has been drained");
     });
 
-    archive.on("warning", function (err: any) {
+    archive.on("warning", (err: any) => {
       if (err.code === "ENOENT") {
         // log warning
       } else {
@@ -102,7 +102,7 @@ const generateExcelWorkbookNode = (workbook: IWorkbook): Promise<void> => {
       }
     });
 
-    archive.on("error", function (err: any) {
+    archive.on("error", (err: any) => {
       reject(err);  // Reject the promise on error
     });
 
