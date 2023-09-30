@@ -1,5 +1,5 @@
 import { ISheet, ICellType } from "../..";
-import { rowColumnToVbPosition, indexToVbIndex, calculateExtant } from '../../util'
+import { rowColumnToVbPosition, indexToVbIndex, calculateExtant, Equation } from '../../util'
 
 
 const generateSheetXml = (
@@ -21,20 +21,39 @@ const generateSheetXml = (
     <col max="1025" min="1" style="0" width="11.52"/>
   </cols>
   <sheetData>
-    ${(sheet.rows).map((row, indexCol) => `
-      <row r="${indexToVbIndex(indexCol)}">
-        ${(row.cells).map((cell, indexRow) => cell.type === ICellType.skip
-    ? ""
-    : `
-          <c r="${rowColumnToVbPosition(indexRow, indexCol)}" t="${cell.type}">
-            <v>${cell.value}</v>
-          </c>
-          `).join('\n')
+  ${sheet.rows.map((row, rowIndex) => {
+    let rowContent = '';
+    rowContent += `<row r="${indexToVbIndex(rowIndex)}">\n`;
+
+    row.cells.forEach((cell, cellIndex) => {
+
+      const cellPosition = rowColumnToVbPosition(cellIndex, rowIndex);
+      const cellType = cell.type;
+      const cellValue = cell.value || '';
+
+      if (cell.type === ICellType.equation) {
+
+        // todo: write now I'm restricting to use function which will only return number
+        rowContent += `
+              <c r="${cellPosition}" t="n">
+                <f aca="false">${cell.value.getEquation()}</f>
+              </c>\n`;
+
+      } else if (cell.type !== ICellType.skip) {
+
+        rowContent += `
+              <c r="${cellPosition}" t="${cellType}">
+                <v>${cellValue}</v>
+              </c>\n`;
+      }
+    });
+
+    rowContent += '</row>\n';
+    return rowContent;
+  }).join('')
     }
-      </row>
-      `).join('\n')
-    }
-  </sheetData>
+</sheetData>
+
   <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
 </worksheet>
 `};
