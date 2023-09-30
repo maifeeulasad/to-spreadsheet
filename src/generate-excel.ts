@@ -35,16 +35,20 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
   const sheets: ISheet[] = dump.map(({ title, content }) => {
     const rows = content.map(row => {
       const cells = row.map(content => {
-        const isString = typeof content === 'string';
-        const type = isString ? ICellType.string : ICellType.number;
-        let value = isString ? strings.indexOf(content) : content;
+        if (typeof content === 'number') {
+          return { type: ICellType.number, value: content };
+        } else if (typeof content === 'string') {
+          const type = ICellType.string;
+          let value = strings.indexOf(content);
 
-        if (isString && value === -1) {
-          strings.push(content);
-          value = strings.length - 1;
+          if (value === -1) {
+            strings.push(content);
+            value = strings.length - 1;
+          }
+
+          return { type: ICellType.string, value };
         }
-
-        return { type, value };
+        return { type: ICellType.skip, value: undefined };
       });
 
       return { cells };
