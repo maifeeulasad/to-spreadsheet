@@ -6,6 +6,8 @@ npm package to create spreadsheet in node environment
 [![minified](https://badgen.net/bundlephobia/min/to-spreadsheet)](https://bundlephobia.com/result?p=to-spreadsheet)
 [![minified + gzipped](https://badgen.net/bundlephobia/minzip/to-spreadsheet)](https://bundlephobia.com/result?p=to-spreadsheet)
 
+[![GitHub stars](https://img.shields.io/github/stars/maifeeulasad/to-spreadsheet)](https://github.com/maifeeulasad/to-spreadsheet/stargazers)
+[![GitHub watchers](https://img.shields.io/github/watchers/maifeeulasad/to-spreadsheet)](https://github.com/maifeeulasad/to-spreadsheet/watchers)
 
 # NPM
 ```
