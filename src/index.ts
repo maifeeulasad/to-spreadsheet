@@ -2,12 +2,13 @@ import { generateExcel, EnvironmentType } from "./generate-excel";
 
 enum ICellType {
   string = "s",
-  number = "n"
+  number = "n",
+  skip = "skip",
 }
 
 interface ICell {
   type: ICellType;
-  value: any;
+  value: string | number | undefined;
 }
 
 interface IRows {
@@ -27,7 +28,7 @@ interface IWorkbook {
 
 interface IPage {
   title: string
-  content: (string | number)[][]
+  content: (string | number | undefined)[][]
 }
 
 export { ICell, ISheet, IWorkbook, IRows, ICellType, IPage }
@@ -44,7 +45,9 @@ const sampleData = [
     ]
   },
   { title: 'Maifee2', content: [[1], [1, 2]] },
-  { title: 'Maifee3', content: [['meaw', "meaw"], ["woof", 'woof']] }
+  { title: 'Maifee3', content: [['meaw', undefined, "meaw"], ["woof", 'woof']] }
 ]
+
+// generateExcel(sampleData) <- check before releasing with `yarn test:compile`
 
 export { generateExcel, sampleData, EnvironmentType };
