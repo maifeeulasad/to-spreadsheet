@@ -1,4 +1,4 @@
-import { ISheet } from "../..";
+import { ISheet, ICellType } from "../..";
 import { rowColumnToVbPosition, indexToVbIndex, calculateExtant } from '../../util'
 
 
@@ -22,12 +22,18 @@ const generateSheetXml = (
   </cols>
   <sheetData>
     ${(sheet.rows).map((row, indexCol) => `
-    <row r="${indexToVbIndex(indexCol)}">
-      ${(row.cells).map((cell, indexRow) => `
-      <c r="${rowColumnToVbPosition(indexRow, indexCol)}" t="${cell.type}"><v>${cell.value}</v></c>
-      `).join('\n')}
-    </row>
-    `).join('\n')}
+      <row r="${indexToVbIndex(indexCol)}">
+        ${(row.cells).map((cell, indexRow) => cell.type === ICellType.skip
+    ? ""
+    : `
+          <c r="${rowColumnToVbPosition(indexRow, indexCol)}" t="${cell.type}">
+            <v>${cell.value}</v>
+          </c>
+          `).join('\n')
+    }
+      </row>
+      `).join('\n')
+    }
   </sheetData>
   <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
 </worksheet>
