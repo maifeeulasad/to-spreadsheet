@@ -31,8 +31,8 @@ const sampleData = [
       [1, 2, 3],
     ]
   },
-  { title: 'Maifee2', content: [[1], [1, 2]] },
-  { title: 'Maifee3', content: [['meaw', "meaw"], ["woof", 'woof']] }
+  { title: 'Maifee2', content: [[1], [1, skipCell(3), 2]] },
+  { title: 'Maifee3', content: [['meaw', undefined, "meaw"], ["woof", 'woof']] }
 ]
 
 generateExcel(sampleData); // <-- by default generate XLSX for node
