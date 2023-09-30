@@ -23,4 +23,14 @@ const calculateExtant = (rows: IRows[]): string => rowColumnToVbPosition(
     rows.length - 1
 )
 
-export { indexToVbIndex, indexToVbRelationIndex, indexToRowIndex, rowColumnToVbPosition, calculateExtant }
+class SkipCell {
+    private skipCell: number;
+    public getSkipCell = () => this.skipCell;
+    constructor(skipCell: number) {
+        this.skipCell = skipCell;
+    }
+}
+
+const skipCell = (skipCell: number) => new SkipCell(skipCell);
+
+export { indexToVbIndex, indexToVbRelationIndex, indexToRowIndex, rowColumnToVbPosition, calculateExtant, SkipCell, skipCell }
