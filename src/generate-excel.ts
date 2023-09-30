@@ -52,7 +52,7 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
         } else if (content instanceof Equation) {
           return { type: ICellType.equation, value: content };
         } else {
-          return { type: ICellType.skip, value: undefined };
+          return { type: ICellType.skip };
         }
       });
 

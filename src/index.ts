@@ -18,7 +18,6 @@ interface ICellNumber {
 }
 interface ICellSkip {
   type: ICellType.skip;
-  value: undefined;
 }
 interface ICellEquation {
   type: ICellType.equation;

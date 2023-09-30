@@ -26,25 +26,27 @@ const generateSheetXml = (
     rowContent += `<row r="${indexToVbIndex(rowIndex)}">\n`;
 
     row.cells.forEach((cell, cellIndex) => {
-
-      const cellPosition = rowColumnToVbPosition(cellIndex, rowIndex);
       const cellType = cell.type;
-      const cellValue = cell.value || '';
 
-      if (cell.type === ICellType.equation) {
+      if (cellType !== ICellType.skip) {
+        const cellPosition = rowColumnToVbPosition(cellIndex, rowIndex);
+        const cellValue = cell.value || '';
 
-        // todo: write now I'm restricting to use function which will only return number
-        rowContent += `
+        if (cell.type === ICellType.equation) {
+
+          // todo: write now I'm restricting to use function which will only return number
+          rowContent += `
               <c r="${cellPosition}" t="n">
                 <f aca="false">${cell.value.getEquation()}</f>
               </c>\n`;
 
-      } else if (cell.type !== ICellType.skip) {
-
-        rowContent += `
+        } else {
+          
+          rowContent += `
               <c r="${cellPosition}" t="${cellType}">
                 <v>${cellValue}</v>
               </c>\n`;
+        }
       }
     });
 
