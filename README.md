@@ -19,7 +19,7 @@ npm i to-spreadsheet
 [![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/s/to-spreadsheet-example-hdmrvc?file=/src/App.tsx)
 
 ```ts
-import { generateExcel , EnvironmentType } from 'to-spreadsheet/lib/index';
+import { generateExcel , EnvironmentType, skipCell } from 'to-spreadsheet/lib/index';
 
 const sampleData = [
   {
