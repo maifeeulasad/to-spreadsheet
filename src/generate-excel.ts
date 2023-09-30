@@ -9,7 +9,7 @@ import { generateTheme1 } from "./xl/theme/theme1.xml";
 import { generateWorkBookXml } from "./xl/workbook.xml";
 import { generateSheetXml } from "./xl/worksheets/sheet.xml";
 import { ICellType, IPage, ISheet, IWorkbook } from "./index";
-import { SkipCell } from "./util";
+import { Equation, SkipCell } from "./util";
 
 const generateTree = (workbook: IWorkbook) => {
   return {
@@ -49,6 +49,8 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
           return { type: ICellType.string, value };
         } else if (content instanceof SkipCell) {
           return new Array(content.getSkipCell()).fill({ type: ICellType.skip, value: undefined });
+        } else if (content instanceof Equation) {
+          return { type: ICellType.equation, value: content };
         } else {
           return { type: ICellType.skip, value: undefined };
         }
