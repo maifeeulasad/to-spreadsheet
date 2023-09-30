@@ -8,7 +8,7 @@ enum ICellType {
 
 interface ICell {
   type: ICellType;
-  value: string | number | undefined;
+  value: number | undefined;
 }
 
 interface IRows {
@@ -48,6 +48,6 @@ const sampleData = [
   { title: 'Maifee3', content: [['meaw', undefined, "meaw"], ["woof", 'woof']] }
 ]
 
-// generateExcel(sampleData) <- check before releasing with `yarn test:compile`
+// generateExcel(sampleData) // <- check before releasing with `yarn test:compile`
 
 export { generateExcel, sampleData, EnvironmentType };
