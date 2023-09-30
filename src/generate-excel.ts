@@ -9,6 +9,7 @@ import { generateTheme1 } from "./xl/theme/theme1.xml";
 import { generateWorkBookXml } from "./xl/workbook.xml";
 import { generateSheetXml } from "./xl/worksheets/sheet.xml";
 import { ICellType, IPage, ISheet, IWorkbook } from "./index";
+import { SkipCell } from "./util";
 
 const generateTree = (workbook: IWorkbook) => {
   return {
@@ -31,10 +32,10 @@ enum EnvironmentType {
 }
 
 const generateExcel = (dump: IPage[], environmentType: EnvironmentType = EnvironmentType.NODE): Promise<void> => {
-  const strings: string[] = []
+  const strings: string[] = [];
   const sheets: ISheet[] = dump.map(({ title, content }) => {
     const rows = content.map(row => {
-      const cells = row.map(content => {
+      const cells = row.flatMap(content => {
         if (typeof content === 'number') {
           return { type: ICellType.number, value: content };
         } else if (typeof content === 'string') {
@@ -45,10 +46,12 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
             strings.push(content);
             value = strings.length - 1;
           }
-
           return { type: ICellType.string, value };
+        } else if (content instanceof SkipCell) {
+          return new Array(content.getSkipCell()).fill({ type: ICellType.skip, value: undefined });
+        } else {
+          return { type: ICellType.skip, value: undefined };
         }
-        return { type: ICellType.skip, value: undefined };
       });
 
       return { cells };
