@@ -30,7 +30,7 @@ enum EnvironmentType {
   BROWSER,
 }
 
-const generateExcel = (dump: IPage[], environmentType: EnvironmentType = EnvironmentType.BROWSER): Promise<void> => {
+const generateExcel = (dump: IPage[], environmentType: EnvironmentType = EnvironmentType.NODE): Promise<void> => {
   const strings: string[] = []
   const sheets: ISheet[] = dump.map(({ title, content }) => {
     const rows = content.map(row => {
