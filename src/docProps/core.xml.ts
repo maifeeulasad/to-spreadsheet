@@ -1,22 +1,28 @@
-import { format } from "date-fns";
-
 interface IGenerateCoreXml {
-    username?: string
-    description?: string
-    language?: string
-    version?: string
-    subject?: string
-    title?: string
+  username?: string
+  description?: string
+  language?: string
+  version?: string
+  subject?: string
+  title?: string
 }
 
-const generateCoreXml = ({ username = "to-spreadsheet", description = "", language = "en-US", version = "1", subject = "", title = "" }: IGenerateCoreXml) => {
-    const date =
-        format(Date.now(), "yyyy-MM-dd") +
-        "T" +
-        format(Date.now(), "HH:mm:ss") +
-        "Z";
+const formatDate = (date: Date) => {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
 
-    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
+};
+
+
+const generateCoreXml = ({ username = "to-spreadsheet", description = "", language = "en-US", version = "1", subject = "", title = "" }: IGenerateCoreXml) => {
+  const date = formatDate(new Date());
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <cp:coreProperties
           xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" 
           xmlns:dc="http://purl.org/dc/elements/1.1/" 
