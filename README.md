@@ -1,5 +1,5 @@
 # to-spreadsheet
-npm package to create spreadsheet in node environment
+npm package to create spreadsheet in node environment and in browser
 
 
 [![npm version](https://img.shields.io/npm/v/to-spreadsheet.svg)](https://www.npmjs.com/package/to-spreadsheet)
