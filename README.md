@@ -38,3 +38,9 @@ const sampleData = [
 generateExcel(sampleData); // <-- by default generate XLSX for node
 generateExcel(sampleData, EnvironmentType.BROWSER); // <-- for browser
 ```
+
+# Features
+ - [x] Multiple sheet support
+ - [x] Equations
+ - [ ] Cell styling
+ - [ ] Sheet styling
