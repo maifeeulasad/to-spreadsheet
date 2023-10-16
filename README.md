@@ -8,6 +8,7 @@ npm package to create spreadsheet in node environment and in browser
 
 [![GitHub stars](https://img.shields.io/github/stars/maifeeulasad/to-spreadsheet)](https://github.com/maifeeulasad/to-spreadsheet/stargazers)
 [![GitHub watchers](https://img.shields.io/github/watchers/maifeeulasad/to-spreadsheet)](https://github.com/maifeeulasad/to-spreadsheet/watchers)
+[![Commits after release](https://img.shields.io/github/commits-since/maifeeulasad/to-spreadsheet/latest/main?include_prereleases)](https://img.shields.io/github/commits-since/maifeeulasad/to-spreadsheet/latest/main?include_prereleases)
 
 # NPM
 ```
