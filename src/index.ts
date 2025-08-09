@@ -8,7 +8,7 @@
  */
 
 import { generateExcel, EnvironmentType } from "./generate-excel";
-import { SkipCell, skipCell, Equation, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell } from "./util";
+import { SkipCell, skipCell, Equation, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell } from "./util";
 
 /**
  * Enum representing different cell types in Excel
@@ -19,6 +19,8 @@ enum ICellType {
   string = "s",
   /** Number cell type - contains numeric values */
   number = "n",
+  /** Date cell type - contains date values */
+  date = "d",
   /** Skip cell type - represents empty/skipped cells */
   skip = "skip",
   /** Equation cell type - contains Excel formulas */
@@ -121,10 +123,23 @@ interface ICellEquation {
 }
 
 /**
- * Union type representing any valid cell type
- * @typedef {ICellString | ICellNumber | ICellSkip | ICellEquation} ICell
+ * Interface representing a date cell with optional styling
+ * @interface ICellDate
  */
-type ICell = ICellString | ICellNumber | ICellSkip | ICellEquation;
+interface ICellDate {
+  /** Cell type identifier */
+  type: ICellType.date;
+  /** Date value as JavaScript Date object */
+  value: Date;
+  /** Optional styling configuration */
+  style?: ICellStyle;
+}
+
+/**
+ * Union type representing any valid cell type
+ * @typedef {ICellString | ICellNumber | ICellDate | ICellSkip | ICellEquation} ICell
+ */
+type ICell = ICellString | ICellNumber | ICellDate | ICellSkip | ICellEquation;
 
 /**
  * Interface representing a row of cells in a worksheet
@@ -176,7 +191,7 @@ interface IPage {
 /**
  * Export all type definitions and interfaces for external use
  */
-export { ICell, ISheet, IWorkbook, IRows, ICellType, IPage, BorderStyle, IBorder, ICellStyle }
+export { ICell, ISheet, IWorkbook, IRows, ICellType, IPage, BorderStyle, IBorder, ICellStyle, ICellDate }
 
 /**
  * Sample data demonstrating various features of the library
@@ -224,6 +239,40 @@ const sampleData = [
         'No Border Cell'
       ]
     ] 
+  },
+  // Demonstration of date functionality
+  { 
+    title: 'DateDemo', 
+    content: [
+      [
+        // Header row with dates
+        'Event',
+        'Date',
+        'Bordered Date'
+      ],
+      [
+        // Sample dates
+        'Project Start',
+        createDateCell(new Date('2024-01-01')),
+        createBorderedDateCell(new Date('2024-01-15'), createAllBorders(BorderStyle.thin, '#000000'))
+      ],
+      [
+        'Milestone 1',
+        createDateCell(new Date()),
+        createDateCell(new Date('2024-12-31'))
+      ],
+      [
+        'Custom Date Style',
+        createDateCell(new Date('2024-06-15'), { 
+          border: { 
+            top: BorderStyle.thick, 
+            bottom: BorderStyle.double,
+            color: '#FF0000'
+          } 
+        }),
+        'Mixed Content'
+      ]
+    ] 
   }
 ]
 
@@ -234,4 +283,4 @@ const sampleData = [
  * This includes the main generation function, sample data, environment types,
  * utility functions, and all border/styling helper functions
  */
-export { generateExcel, sampleData, EnvironmentType, skipCell, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell };
+export { generateExcel, sampleData, EnvironmentType, skipCell, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell };
