@@ -7,7 +7,7 @@
  * @license MIT
  */
 
-import { IBorder, BorderStyle, ICellStyle } from "..";
+import { IBorder, BorderStyle, ICellStyle, HorizontalAlignment, VerticalAlignment } from "..";
 
 /**
  * Generates XML representation of border styling for a single border configuration
@@ -107,6 +107,32 @@ const generateFillXml = (color?: string): string => {
 };
 
 /**
+ * Generates XML representation of alignment styling for a cell
+ * @param {ICellStyle} style - Style configuration object containing alignment properties
+ * @returns {string} XML string representing the alignment styling or empty string if no alignment
+ * @internal
+ */
+const generateAlignmentXml = (style: ICellStyle): string => {
+  const hasAlignment = style.horizontalAlignment || style.verticalAlignment;
+  
+  if (!hasAlignment) {
+    return '';
+  }
+  
+  let alignmentAttrs = '';
+  
+  if (style.horizontalAlignment) {
+    alignmentAttrs += ` horizontal="${style.horizontalAlignment}"`;
+  }
+  
+  if (style.verticalAlignment) {
+    alignmentAttrs += ` vertical="${style.verticalAlignment}"`;
+  }
+  
+  return `<alignment${alignmentAttrs} />`;
+};
+
+/**
  * Generates the complete styles.xml content for an Excel workbook
  * Creates a comprehensive styling definition including fonts, fills, borders, and cell formats
  * @param {Map<string, ICellStyle>} styleMap - Map of unique complete styles used in the workbook
@@ -168,7 +194,9 @@ const generateStyleXml = (styleMap: Map<string, ICellStyle>, hasDateCells: boole
       const borderIndex = Array.from(uniqueBorders.keys()).indexOf(JSON.stringify(style.border || {}));
       const fontIndex = Array.from(uniqueFonts.keys()).indexOf(style.foregroundColor || "default");
       const fillIndex = Array.from(uniqueFills.keys()).indexOf(style.backgroundColor || "none");
-      return `<xf numFmtId="0" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0" />`;
+      const alignmentXml = generateAlignmentXml(style);
+      const applyAlignment = style.horizontalAlignment || style.verticalAlignment ? ' applyAlignment="1"' : '';
+      return `<xf numFmtId="0" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0"${applyAlignment}>${alignmentXml}</xf>`;
     }).join('\n        ');
     
     // Generate formats for date cells
@@ -177,7 +205,9 @@ const generateStyleXml = (styleMap: Map<string, ICellStyle>, hasDateCells: boole
       const borderIndex = Array.from(uniqueBorders.keys()).indexOf(JSON.stringify(style.border || {}));
       const fontIndex = Array.from(uniqueFonts.keys()).indexOf(style.foregroundColor || "default");
       const fillIndex = Array.from(uniqueFills.keys()).indexOf(style.backgroundColor || "none");
-      return `<xf numFmtId="164" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0" />`;
+      const alignmentXml = generateAlignmentXml(style);
+      const applyAlignment = style.horizontalAlignment || style.verticalAlignment ? ' applyAlignment="1"' : '';
+      return `<xf numFmtId="164" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0"${applyAlignment}>${alignmentXml}</xf>`;
     }).join('\n        ');
     
     cellXfsCount = styleCount * 2;
@@ -186,7 +216,9 @@ const generateStyleXml = (styleMap: Map<string, ICellStyle>, hasDateCells: boole
       const borderIndex = Array.from(uniqueBorders.keys()).indexOf(JSON.stringify(style.border || {}));
       const fontIndex = Array.from(uniqueFonts.keys()).indexOf(style.foregroundColor || "default");
       const fillIndex = Array.from(uniqueFills.keys()).indexOf(style.backgroundColor || "none");
-      return `<xf numFmtId="0" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0" />`;
+      const alignmentXml = generateAlignmentXml(style);
+      const applyAlignment = style.horizontalAlignment || style.verticalAlignment ? ' applyAlignment="1"' : '';
+      return `<xf numFmtId="0" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0"${applyAlignment}>${alignmentXml}</xf>`;
     }).join('\n        ');
   }
 
