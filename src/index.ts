@@ -8,7 +8,7 @@
  */
 
 import { generateExcel, EnvironmentType } from "./generate-excel";
-import { SkipCell, skipCell, Equation, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell, createBackgroundCell, createForegroundCell, createColoredCell, createBackgroundDateCell } from "./util";
+import { SkipCell, skipCell, Equation, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell, createBackgroundCell, createForegroundCell, createColoredCell, createBackgroundDateCell, createHorizontallyAlignedCell, createVerticallyAlignedCell, createAlignedCell, createCenteredCell } from "./util";
 
 /**
  * Enum representing different cell types in Excel
@@ -49,6 +49,46 @@ enum BorderStyle {
 }
 
 /**
+ * Enum representing horizontal alignment options for Excel cells
+ * @enum {string}
+ */
+enum HorizontalAlignment {
+  /** General alignment (Excel default) */
+  general = "general",
+  /** Left alignment */
+  left = "left",
+  /** Center alignment */
+  center = "center",
+  /** Right alignment */
+  right = "right",
+  /** Fill alignment */
+  fill = "fill",
+  /** Justify alignment */
+  justify = "justify",
+  /** Center across selection */
+  centerContinuous = "centerContinuous",
+  /** Distributed alignment */
+  distributed = "distributed",
+}
+
+/**
+ * Enum representing vertical alignment options for Excel cells
+ * @enum {string}
+ */
+enum VerticalAlignment {
+  /** Top alignment */
+  top = "top",
+  /** Center alignment */
+  center = "center",
+  /** Bottom alignment */
+  bottom = "bottom",
+  /** Justify alignment */
+  justify = "justify",
+  /** Distributed alignment */
+  distributed = "distributed",
+}
+
+/**
  * Interface representing border configuration for a cell
  * @interface IBorder
  */
@@ -76,6 +116,10 @@ interface ICellStyle {
   backgroundColor?: string;
   /** Foreground (font) color in hex format (e.g., "#000000" for black text) */
   foregroundColor?: string;
+  /** Horizontal alignment of cell content */
+  horizontalAlignment?: HorizontalAlignment;
+  /** Vertical alignment of cell content */
+  verticalAlignment?: VerticalAlignment;
 }
 
 /**
@@ -195,7 +239,7 @@ interface IPage {
 /**
  * Export all type definitions and interfaces for external use
  */
-export { ICell, ISheet, IWorkbook, IRows, ICellType, IPage, BorderStyle, IBorder, ICellStyle, ICellDate }
+export { ICell, ISheet, IWorkbook, IRows, ICellType, IPage, BorderStyle, IBorder, ICellStyle, ICellDate, HorizontalAlignment, VerticalAlignment }
 
 /**
  * Sample data demonstrating various features of the library
@@ -324,6 +368,51 @@ const sampleData = [
         42
       ]
     ] 
+  },
+  // Demonstration of alignment functionality
+  { 
+    title: 'AlignmentDemo', 
+    content: [
+      [
+        // Header row with alignment
+        'Feature',
+        'Horizontal Alignment',
+        'Vertical Alignment',
+        'Both Alignments'
+      ],
+      [
+        // Horizontal alignments
+        'Left Align',
+        createHorizontallyAlignedCell('Left Text', HorizontalAlignment.left),
+        createVerticallyAlignedCell('Top Text', VerticalAlignment.top),
+        createAlignedCell('Top-Left', HorizontalAlignment.left, VerticalAlignment.top)
+      ],
+      [
+        'Center Align',
+        createHorizontallyAlignedCell('Center Text', HorizontalAlignment.center),
+        createVerticallyAlignedCell('Center Text', VerticalAlignment.center),
+        createCenteredCell('Full Center')
+      ],
+      [
+        'Right Align',
+        createHorizontallyAlignedCell('Right Text', HorizontalAlignment.right),
+        createVerticallyAlignedCell('Bottom Text', VerticalAlignment.bottom),
+        createAlignedCell('Bottom-Right', HorizontalAlignment.right, VerticalAlignment.bottom)
+      ],
+      [
+        // Mixed with other features
+        'Complex Style',
+        createStyledCell('All Features', {
+          horizontalAlignment: HorizontalAlignment.center,
+          verticalAlignment: VerticalAlignment.center,
+          backgroundColor: '#CCFFCC',
+          foregroundColor: '#FF0000',
+          border: createAllBorders(BorderStyle.thick, '#000000')
+        }),
+        createAlignedCell(new Date(), HorizontalAlignment.right, VerticalAlignment.center),
+        createCenteredCell(42)
+      ]
+    ] 
   }
 ]
 
@@ -334,4 +423,4 @@ const sampleData = [
  * This includes the main generation function, sample data, environment types,
  * utility functions, and all border/styling helper functions
  */
-export { generateExcel, sampleData, EnvironmentType, skipCell, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell, createBackgroundCell, createForegroundCell, createColoredCell, createBackgroundDateCell };
+export { generateExcel, sampleData, EnvironmentType, skipCell, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell, createBackgroundCell, createForegroundCell, createColoredCell, createBackgroundDateCell, createHorizontallyAlignedCell, createVerticallyAlignedCell, createAlignedCell, createCenteredCell };
