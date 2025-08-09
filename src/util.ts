@@ -1,10 +1,39 @@
+/**
+ * @fileoverview Utility functions for Excel spreadsheet generation
+ * Contains helper functions for cell positioning, border styling, equations, and data conversion
+ * 
+ * @author Maifee Ul Asad <maifeeulasad@gmail.com>
+ * @license MIT
+ */
+
 import { IRows, IBorder, BorderStyle, ICellType, ICellStyle, ICell } from ".";
 
+/**
+ * Converts zero-based index to one-based index (Excel format)
+ * @param {number} index - Zero-based index
+ * @returns {number} One-based index
+ * @example indexToVbIndex(0) // returns 1
+ */
 const indexToVbIndex = (index: number) => index + 1;
 
+/**
+ * Converts index to relation index with offset
+ * Used for internal Excel relationship indexing
+ * @param {number} index - Zero-based index
+ * @returns {number} Relation index (index + 3)
+ */
 const indexToVbRelationIndex = (index: number) => indexToVbIndex(index) + 2;
 
-// 1->a, 2->b, 26->z, 27->aa
+/**
+ * Converts numeric index to Excel column notation
+ * Handles Excel's base-26 column naming system (A, B, C... Z, AA, AB...)
+ * @param {number} index - One-based column index
+ * @returns {string} Excel column notation
+ * @example 
+ * indexToRowIndex(1) // returns "A"
+ * indexToRowIndex(26) // returns "Z"  
+ * indexToRowIndex(27) // returns "AA"
+ */
 const indexToRowIndex = (index: number): string => {
     const base = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     let result = "";
@@ -16,36 +45,103 @@ const indexToRowIndex = (index: number): string => {
     return result;
 }
 
+/**
+ * Converts row and column indices to Excel cell position notation
+ * @param {number} row - Zero-based row index
+ * @param {number} col - Zero-based column index  
+ * @returns {string} Excel cell position (e.g., "A1", "B2")
+ * @example rowColumnToVbPosition(0, 0) // returns "A1"
+ */
 const rowColumnToVbPosition = (row: number, col: number): string => indexToRowIndex(indexToVbIndex(row)) + indexToVbIndex(col);
 
+/**
+ * Calculates the extent/range of data in Excel format
+ * Used to determine the worksheet dimension attribute
+ * @param {IRows[]} rows - Array of row data
+ * @returns {string} Excel range notation for the data extent
+ * @example calculateExtant(rows) // returns "C3" for 3x3 data
+ */
 const calculateExtant = (rows: IRows[]): string => rowColumnToVbPosition(
     Math.max(...rows.map(row => row.cells.length)) - 1,
     rows.length - 1
 )
 
+/**
+ * Class representing a skip cell instruction
+ * Used to skip a specified number of cells in a row
+ * @class SkipCell
+ */
 class SkipCell {
     private skipCell: number;
+    
+    /**
+     * Gets the number of cells to skip
+     * @returns {number} Number of cells to skip
+     */
     public getSkipCell = () => this.skipCell;
+    
+    /**
+     * Creates a SkipCell instance
+     * @param {number} skipCell - Number of cells to skip
+     */
     constructor(skipCell: number) {
         this.skipCell = skipCell;
     }
 }
 
+/**
+ * Factory function to create a SkipCell instance
+ * @param {number} skipCell - Number of cells to skip
+ * @returns {SkipCell} SkipCell instance
+ * @example skipCell(3) // skips 3 cells in the row
+ */
 const skipCell = (skipCell: number) => new SkipCell(skipCell);
 
+/**
+ * Class representing an Excel equation/formula
+ * @class Equation
+ */
 class Equation {
     private equation: string;
+    
+    /**
+     * Gets the equation string
+     * @returns {string} The Excel formula
+     */
     public getEquation = () => this.equation;
+    
+    /**
+     * Creates an Equation instance
+     * @param {string} equation - Excel formula string
+     */
     constructor(equation: string) {
         this.equation = equation;
     }
 }
 
+/**
+ * Factory function to create an Equation instance
+ * @param {string} equation - Excel formula string (e.g., "SUM(A1:A10)")
+ * @returns {Equation} Equation instance
+ * @example writeEquation('SUM(A1:B1)') // creates a sum formula
+ */
 const writeEquation = (equation: string) => new Equation(equation);
 
-// Helper functions for creating border styles
+/**
+ * Helper function that simply returns the provided border configuration
+ * Useful for type validation and consistency
+ * @param {IBorder} border - Border configuration object
+ * @returns {IBorder} The same border configuration
+ */
 const createBorder = (border: IBorder): IBorder => border;
 
+/**
+ * Creates a border configuration with the same style on all sides
+ * @param {BorderStyle} style - Border style to apply (defaults to thin)
+ * @param {string} color - Border color in hex format (defaults to black)
+ * @returns {IBorder} Border configuration with all sides styled
+ * @example createAllBorders(BorderStyle.thick, '#FF0000') // thick red borders on all sides
+ */
 const createAllBorders = (
   style: BorderStyle = BorderStyle.thin, 
   color: string = "#000000"
@@ -57,6 +153,13 @@ const createAllBorders = (
   color
 });
 
+/**
+ * Creates a border configuration with style only on the top side
+ * @param {BorderStyle} style - Border style to apply (defaults to thin)
+ * @param {string} color - Border color in hex format (defaults to black)
+ * @returns {IBorder} Border configuration with top border only
+ * @example createTopBorder(BorderStyle.double) // double line top border
+ */
 const createTopBorder = (
   style: BorderStyle = BorderStyle.thin, 
   color: string = "#000000"
@@ -65,6 +168,13 @@ const createTopBorder = (
   color
 });
 
+/**
+ * Creates a border configuration with style only on the bottom side
+ * @param {BorderStyle} style - Border style to apply (defaults to thin)
+ * @param {string} color - Border color in hex format (defaults to black)
+ * @returns {IBorder} Border configuration with bottom border only
+ * @example createBottomBorder(BorderStyle.dashed, '#0000FF') // blue dashed bottom border
+ */
 const createBottomBorder = (
   style: BorderStyle = BorderStyle.thin, 
   color: string = "#000000"
@@ -73,6 +183,13 @@ const createBottomBorder = (
   color
 });
 
+/**
+ * Creates a border configuration with style only on the left side
+ * @param {BorderStyle} style - Border style to apply (defaults to thin)
+ * @param {string} color - Border color in hex format (defaults to black)
+ * @returns {IBorder} Border configuration with left border only
+ * @example createLeftBorder(BorderStyle.medium) // medium line left border
+ */
 const createLeftBorder = (
   style: BorderStyle = BorderStyle.thin, 
   color: string = "#000000"
@@ -81,6 +198,13 @@ const createLeftBorder = (
   color
 });
 
+/**
+ * Creates a border configuration with style only on the right side
+ * @param {BorderStyle} style - Border style to apply (defaults to thin)
+ * @param {string} color - Border color in hex format (defaults to black)
+ * @returns {IBorder} Border configuration with right border only
+ * @example createRightBorder(BorderStyle.dotted) // dotted right border
+ */
 const createRightBorder = (
   style: BorderStyle = BorderStyle.thin, 
   color: string = "#000000"
@@ -89,7 +213,13 @@ const createRightBorder = (
   color
 });
 
-// Generate a unique string key for a border configuration to use in style mapping
+/**
+ * Generates a unique string key for a border configuration
+ * Used internally for style mapping and deduplication
+ * @param {IBorder} border - Border configuration object (optional)
+ * @returns {string} Unique key representing the border configuration
+ * @internal
+ */
 const getBorderKey = (border?: IBorder): string => {
   if (!border) return "none";
   
@@ -104,7 +234,13 @@ const getBorderKey = (border?: IBorder): string => {
   return parts.join("-");
 };
 
-// Helper functions to create styled cells
+/**
+ * Creates a styled cell with custom styling options
+ * @param {string | number} value - Cell value (string or number)
+ * @param {ICellStyle} style - Optional styling configuration
+ * @returns {ICell} Styled cell object
+ * @example createStyledCell('Hello', { border: createAllBorders() })
+ */
 const createStyledCell = (value: string | number, style?: ICellStyle): ICell => {
   if (typeof value === 'string') {
     return {
@@ -121,6 +257,14 @@ const createStyledCell = (value: string | number, style?: ICellStyle): ICell => 
   }
 };
 
+/**
+ * Creates a cell with border styling
+ * Convenience function that combines cell creation with border styling
+ * @param {string | number} value - Cell value (string or number)
+ * @param {IBorder} border - Border configuration
+ * @returns {ICell} Cell with border styling applied
+ * @example createBorderedCell('Header', createAllBorders(BorderStyle.thick))
+ */
 const createBorderedCell = (
   value: string | number, 
   border: IBorder
@@ -128,6 +272,10 @@ const createBorderedCell = (
   return createStyledCell(value, { border });
 };
 
+/**
+ * Export all utility functions and classes for external use
+ * Includes positioning utilities, cell creation helpers, border functions, and internal utilities
+ */
 export { 
   indexToVbIndex, 
   indexToVbRelationIndex, 
