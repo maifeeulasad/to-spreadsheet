@@ -54,7 +54,9 @@
     "jszip": "^3.10.1"
   },
   "files": [
-    "lib"
+    "lib",
+    "README.md",
+    "LICENSE"
   ],
   "devDependencies": {
     "@types/archiver": "^5.3.3",
