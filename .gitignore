@@ -5,3 +5,5 @@ node_modules
 /samples
 /lib
 /example
+
+*.xlsx
