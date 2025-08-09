@@ -7,31 +7,31 @@
  * @license MIT
  */
 
-import { ISheet, ICellType, IBorder } from "../..";
-import { rowColumnToVbPosition, indexToVbIndex, calculateExtant, Equation, getBorderKey, dateToExcelSerial } from '../../util'
+import { ISheet, ICellType, IBorder, ICellStyle } from "../..";
+import { rowColumnToVbPosition, indexToVbIndex, calculateExtant, Equation, getBorderKey, dateToExcelSerial, getStyleKey } from '../../util'
 
 /**
  * Generates the complete XML content for an Excel worksheet
  * Creates worksheet XML with cell data, styling references, and proper Excel structure
  * @param {ISheet} sheet - Sheet data containing rows and cells
- * @param {Map<string, IBorder>} borderStyles - Map of unique border styles used in the workbook
+ * @param {Map<string, ICellStyle>} styleMap - Map of unique complete styles used in the workbook
  * @param {boolean} hasDateCells - Whether the workbook contains date cells requiring special formatting
  * @returns {string} Complete XML content for sheet.xml file
  * @internal
  */
 const generateSheetXml = (
   sheet: ISheet,
-  borderStyles: Map<string, IBorder>,
+  styleMap: Map<string, ICellStyle>,
   hasDateCells: boolean = false
 ) => {
   /**
-   * Create a reverse mapping from border style to index
-   * This allows us to reference border styles by index in cell styling
+   * Create a reverse mapping from style to index
+   * This allows us to reference styles by index in cell styling
    * @type {Map<string, number>}
    */
-  const borderStyleToIndex = new Map<string, number>();
-  Array.from(borderStyles.keys()).forEach((key, index) => {
-    borderStyleToIndex.set(key, index);
+  const styleToIndex = new Map<string, number>();
+  Array.from(styleMap.keys()).forEach((key, index) => {
+    styleToIndex.set(key, index);
   });
 
   /**
@@ -76,26 +76,26 @@ const generateSheetXml = (
         
         /**
          * Determine the style index for this cell
-         * Style index references the border style in styles.xml
+         * Style index references the complete style in styles.xml
          * For date cells with date formatting enabled, add offset to get date format styles
-         * Default to 0 (no border) if no style is specified
+         * Default to 0 (default style) if no style is specified
          */
-        let styleIndex = 0; // Default to no-border style
+        let styleIndex = 0; // Default to no-style
         let isDateCell = cell.type === ICellType.date;
         
-        if ('style' in cell && cell.style?.border) {
-          const borderKey = getBorderKey(cell.style.border);
-          const baseBorderIndex = borderStyleToIndex.get(borderKey) || 0;
+        if ('style' in cell && cell.style) {
+          const styleKey = getStyleKey(cell.style);
+          const baseStyleIndex = styleToIndex.get(styleKey) || 0;
           
           // If this is a date cell and we have date formatting, use the date format styles
           if (isDateCell && hasDateCells) {
-            styleIndex = baseBorderIndex + borderStyles.size; // Offset for date formats
+            styleIndex = baseStyleIndex + styleMap.size; // Offset for date formats
           } else {
-            styleIndex = baseBorderIndex;
+            styleIndex = baseStyleIndex;
           }
         } else if (isDateCell && hasDateCells) {
-          // Date cell with no border but needs date formatting
-          styleIndex = borderStyles.size; // First date format style (no border)
+          // Date cell with no style but needs date formatting
+          styleIndex = styleMap.size; // First date format style (default style)
         }
 
         /**
