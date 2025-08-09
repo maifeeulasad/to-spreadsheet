@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Core Excel generation functionality
+ * Handles the conversion of data structures to Excel format and manages the creation
+ * of Excel workbook files in both Node.js and browser environments
+ * 
+ * @author Maifee Ul Asad <maifeeulasad@gmail.com>
+ * @license MIT
+ */
+
 import { generateContentTypesXml } from "./content-types.xml";
 import { generateRels } from "./_rels/.rels";
 import { generateAppXml } from "./docProps/app.xml";
@@ -11,6 +20,13 @@ import { generateSheetXml } from "./xl/worksheets/sheet.xml";
 import { ICellType, IPage, ISheet, IWorkbook, IBorder } from "./index";
 import { Equation, SkipCell, getBorderKey } from "./util";
 
+/**
+ * Generates the complete XML file structure for an Excel workbook
+ * Analyzes all cells for styling information and creates the appropriate XML files
+ * @param {IWorkbook} workbook - The workbook data structure
+ * @returns {Object} Object containing all XML files needed for the Excel workbook
+ * @internal
+ */
 const generateTree = (workbook: IWorkbook) => {
   // Collect all unique border styles from the workbook
   const borderStyles = new Map<string, IBorder>();
@@ -41,21 +57,45 @@ const generateTree = (workbook: IWorkbook) => {
   };
 };
 
+/**
+ * Enum representing different execution environments
+ * @enum {number}
+ */
 enum EnvironmentType {
+  /** Node.js server environment - generates files using filesystem */
   NODE,
+  /** Browser environment - generates files using JSZip and triggers download */
   BROWSER,
 }
 
+/**
+ * Main function to generate Excel spreadsheet files
+ * Converts input data to Excel format and outputs .xlsx file in the specified environment
+ * @param {IPage[]} dump - Array of worksheet data
+ * @param {EnvironmentType} environmentType - Target environment (Node.js or Browser)
+ * @returns {Promise<void>} Promise that resolves when file generation is complete
+ * @example
+ * // Generate Excel file in Node.js
+ * generateExcel(data, EnvironmentType.NODE);
+ * 
+ * // Generate Excel file in browser (triggers download)
+ * generateExcel(data, EnvironmentType.BROWSER);
+ */
 const generateExcel = (dump: IPage[], environmentType: EnvironmentType = EnvironmentType.NODE): Promise<void> => {
   const strings: string[] = [];
+  
+  // Convert input pages to internal workbook structure
   const sheets: ISheet[] = dump.map(({ title, content }) => {
     const rows = content.map(row => {
       const cells: any[] = [];
       
+      // Process each cell in the row
       row.forEach(content => {
         if (typeof content === 'number') {
+          // Handle numeric values
           cells.push({ type: ICellType.number, value: content });
         } else if (typeof content === 'string') {
+          // Handle string values - add to shared strings table
           const type = ICellType.string;
           let value = strings.indexOf(content);
 
@@ -65,16 +105,18 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
           }
           cells.push({ type: ICellType.string, value });
         } else if (content instanceof SkipCell) {
+          // Handle skip cell instructions
           for (let i = 0; i < content.getSkipCell(); i++) {
             cells.push({ type: ICellType.skip, value: undefined });
           }
         } else if (content instanceof Equation) {
+          // Handle Excel formulas
           cells.push({ type: ICellType.equation, value: content });
         } else if (content && typeof content === 'object' && 'type' in content) {
           // Handle pre-built cell objects with styling
           const cell = content as any;
           if (cell.type === ICellType.string && typeof cell.value === 'string') {
-            // Convert string value to string index
+            // Convert string value to string index for styled string cells
             let stringIndex = strings.indexOf(cell.value);
             if (stringIndex === -1) {
               strings.push(cell.value);
@@ -85,6 +127,7 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
             cells.push(cell);
           }
         } else {
+          // Default to skip cell for undefined/null values
           cells.push({ type: ICellType.skip });
         }
       });
@@ -108,6 +151,13 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
   }
 }
 
+/**
+ * Generates Excel workbook file in Node.js environment
+ * Uses the filesystem and archiver library to create .xlsx files
+ * @param {IWorkbook} workbook - Complete workbook data structure
+ * @returns {Promise<void>} Promise that resolves when file is written
+ * @internal
+ */
 const generateExcelWorkbookNode = (workbook: IWorkbook): Promise<void> => {
   return new Promise((resolve, reject) => {
 
@@ -146,6 +196,7 @@ const generateExcelWorkbookNode = (workbook: IWorkbook): Promise<void> => {
 
     archive.pipe(output);
 
+    // Add all generated XML files to the archive
     Object.entries(generateTree(workbook)).map(([filename, fileContent]) => {
       archive.append(fileContent, { name: filename });
     });
@@ -154,6 +205,13 @@ const generateExcelWorkbookNode = (workbook: IWorkbook): Promise<void> => {
   });
 };
 
+/**
+ * Generates Excel workbook file in browser environment  
+ * Uses JSZip library to create .xlsx files and triggers download
+ * @param {IWorkbook} workbook - Complete workbook data structure
+ * @returns {Promise<void>} Promise that resolves when download is triggered
+ * @internal
+ */
 const generateExcelWorkbookBrowser = (workbook: IWorkbook): Promise<void> => {
   return new Promise((resolve, reject) => {
     try {
@@ -164,10 +222,12 @@ const generateExcelWorkbookBrowser = (workbook: IWorkbook): Promise<void> => {
       const zip = new JSZip();
       const tree = generateTree(workbook);
 
+      // Add all XML files to the zip
       Object.entries(tree).forEach(([filename, fileContent]) => {
         zip.file(filename, fileContent);
       });
 
+      // Generate blob and trigger download
       zip.generateAsync({ type: "blob" }).then((blob: Blob) => {
         saveAs(blob, `${workbook.filename}.xlsx`);
         resolve();
@@ -179,4 +239,8 @@ const generateExcelWorkbookBrowser = (workbook: IWorkbook): Promise<void> => {
   });
 };
 
+/**
+ * Export the main generation function and environment type enum
+ * These are the primary exports used by consuming applications
+ */
 export { generateExcel, EnvironmentType };
