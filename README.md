@@ -145,7 +145,7 @@ const data = [
  - [x] Cell borders
  - [x] Cell styling (background colors, foreground colors, dates)
  - [x] Date cells with proper Excel formatting
- - [ ] Cell alignment
+ - [x] Cell alignment (horizontal and vertical)
  - [ ] Sheet styling
 
 ## Cell Borders
@@ -290,3 +290,121 @@ Colors should be specified in hex format:
 - `#000000` - Black
 - `#FFFFFF` - White
 - `#CCCCCC` - Light gray
+
+## Cell Alignment
+
+You can align cell content both horizontally and vertically:
+
+### Basic Alignment Usage
+
+```ts
+import { 
+  generateExcel, 
+  createHorizontallyAlignedCell, 
+  createVerticallyAlignedCell, 
+  createAlignedCell,
+  createCenteredCell,
+  HorizontalAlignment, 
+  VerticalAlignment 
+} from 'to-spreadsheet/lib/index';
+
+const data = [
+  {
+    title: 'AlignmentDemo',
+    content: [
+      [
+        'Feature',
+        'Horizontal',
+        'Vertical',
+        'Both'
+      ],
+      [
+        'Left Align',
+        createHorizontallyAlignedCell('Left Text', HorizontalAlignment.left),
+        createVerticallyAlignedCell('Top Text', VerticalAlignment.top),
+        createAlignedCell('Top-Left', HorizontalAlignment.left, VerticalAlignment.top)
+      ],
+      [
+        'Center Align',
+        createHorizontallyAlignedCell('Center Text', HorizontalAlignment.center),
+        createVerticallyAlignedCell('Center Text', VerticalAlignment.center),
+        createCenteredCell('Full Center')
+      ],
+      [
+        'Right Align',
+        createHorizontallyAlignedCell('Right Text', HorizontalAlignment.right),
+        createVerticallyAlignedCell('Bottom Text', VerticalAlignment.bottom),
+        createAlignedCell('Bottom-Right', HorizontalAlignment.right, VerticalAlignment.bottom)
+      ]
+    ]
+  }
+];
+```
+
+### Horizontal Alignment Options
+
+- `HorizontalAlignment.general` - General alignment (Excel default)
+- `HorizontalAlignment.left` - Left alignment
+- `HorizontalAlignment.center` - Center alignment  
+- `HorizontalAlignment.right` - Right alignment
+- `HorizontalAlignment.fill` - Fill alignment
+- `HorizontalAlignment.justify` - Justify alignment
+- `HorizontalAlignment.centerContinuous` - Center across selection
+- `HorizontalAlignment.distributed` - Distributed alignment
+
+### Vertical Alignment Options
+
+- `VerticalAlignment.top` - Top alignment
+- `VerticalAlignment.center` - Center alignment
+- `VerticalAlignment.bottom` - Bottom alignment
+- `VerticalAlignment.justify` - Justify alignment
+- `VerticalAlignment.distributed` - Distributed alignment
+
+### Alignment Helper Functions
+
+- `createHorizontallyAlignedCell(value, alignment)` - Creates cell with horizontal alignment
+- `createVerticallyAlignedCell(value, alignment)` - Creates cell with vertical alignment
+- `createAlignedCell(value, horizontal, vertical)` - Creates cell with both alignments
+- `createCenteredCell(value)` - Creates center-aligned cell (convenience function)
+
+### Combined with Other Features
+
+Alignment works seamlessly with all other styling features:
+
+```ts
+import { 
+  createStyledCell, 
+  HorizontalAlignment, 
+  VerticalAlignment,
+  createAllBorders, 
+  BorderStyle 
+} from 'to-spreadsheet/lib/index';
+
+const data = [
+  {
+    title: 'ComplexStyling',
+    content: [
+      [
+        // Full styling with alignment, colors, and borders
+        createStyledCell('Complete Style', {
+          horizontalAlignment: HorizontalAlignment.center,
+          verticalAlignment: VerticalAlignment.center,
+          backgroundColor: '#CCFFCC',
+          foregroundColor: '#FF0000',
+          border: createAllBorders(BorderStyle.thick, '#000000')
+        }),
+        
+        // Aligned date cell
+        createDateCell(new Date(), {
+          horizontalAlignment: HorizontalAlignment.right,
+          verticalAlignment: VerticalAlignment.center,
+          backgroundColor: '#FFFFCC'
+        }),
+        
+        // Simple centered text
+        createCenteredCell('Centered')
+      ]
+    ]
+  }
+];
+```
