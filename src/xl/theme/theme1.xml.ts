@@ -1,3 +1,19 @@
+/**
+ * @fileoverview Excel theme XML generation
+ * Handles the generation of theme1.xml which defines the default Office theme for Excel workbooks
+ * This file contains color schemes, font schemes, and format schemes used throughout the workbook
+ * 
+ * @author Maifee Ul Asad <maifeeulasad@gmail.com>
+ * @license MIT
+ */
+
+/**
+ * Generates the theme1.xml file for an Excel workbook
+ * Creates the default Office theme definition including colors, fonts, and formatting styles
+ * This theme provides the visual foundation for Excel's default appearance and styling
+ * @returns {string} Complete XML content for theme1.xml file with Office theme definition
+ * @internal
+ */
 const generateTheme1 = () =>
   `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Office Theme">
@@ -294,4 +310,11 @@ const generateTheme1 = () =>
 </theme>
 `;
 
+/**
+ * Exports the theme XML generation function
+ * @name generateTheme1
+ * @function
+ * @description Generates theme1.xml containing the default Office theme for Excel workbooks
+ * @see {@link generateTheme1} - Main theme generation function
+ */
 export { generateTheme1 };
