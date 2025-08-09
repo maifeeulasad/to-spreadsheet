@@ -1,5 +1,54 @@
-const generateStyleXml = () =>
-  `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+import { IBorder, BorderStyle } from "..";
+
+const generateBorderXml = (border: IBorder): string => {
+  const getColorXml = (color?: string) => 
+    color ? `<color rgb="${color.replace('#', 'FF')}" />` : '';
+  
+  const getBorderSideXml = (side: BorderStyle | undefined, color?: string) => {
+    if (!side || side === BorderStyle.none) {
+      return '<left />';
+    }
+    return `<left style="${side}">${getColorXml(color)}</left>`;
+  };
+
+  const leftXml = !border.left || border.left === BorderStyle.none 
+    ? '<left />' 
+    : `<left style="${border.left}">${getColorXml(border.color)}</left>`;
+    
+  const rightXml = !border.right || border.right === BorderStyle.none 
+    ? '<right />' 
+    : `<right style="${border.right}">${getColorXml(border.color)}</right>`;
+    
+  const topXml = !border.top || border.top === BorderStyle.none 
+    ? '<top />' 
+    : `<top style="${border.top}">${getColorXml(border.color)}</top>`;
+    
+  const bottomXml = !border.bottom || border.bottom === BorderStyle.none 
+    ? '<bottom />' 
+    : `<bottom style="${border.bottom}">${getColorXml(border.color)}</bottom>`;
+
+  return `
+    <border>
+      ${leftXml}
+      ${rightXml}
+      ${topXml}
+      ${bottomXml}
+      <diagonal />
+    </border>`;
+};
+
+const generateStyleXml = (borderStyles: Map<string, IBorder>) => {
+  const borderArray = Array.from(borderStyles.values());
+  const borderCount = borderArray.length;
+  
+  const bordersXml = borderArray.map(border => generateBorderXml(border)).join('');
+  
+  // Generate cellXfs with proper borderId references
+  const cellXfsXml = borderArray.map((_, index) => 
+    `<xf numFmtId="0" fontId="0" fillId="0" borderId="${index}" xfId="0" />`
+  ).join('\n        ');
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">
     <fonts count="1" x14ac:knownFonts="1">
         <font>
@@ -18,20 +67,14 @@ const generateStyleXml = () =>
             <patternFill patternType="gray125" />
         </fill>
     </fills>
-    <borders count="1">
-        <border>
-            <left />
-            <right />
-            <top />
-            <bottom />
-            <diagonal />
-        </border>
+    <borders count="${borderCount}">
+        ${bordersXml}
     </borders>
     <cellStyleXfs count="1">
         <xf numFmtId="0" fontId="0" fillId="0" borderId="0" />
     </cellStyleXfs>
-    <cellXfs count="1">
-        <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" />
+    <cellXfs count="${borderCount}">
+        ${cellXfsXml}
     </cellXfs>
     <cellStyles count="1">
         <cellStyle name="Normal" xfId="0" builtinId="0" />
@@ -48,5 +91,6 @@ const generateStyleXml = () =>
     </extLst>
 </styleSheet>
 `;
+};
 
 export { generateStyleXml };

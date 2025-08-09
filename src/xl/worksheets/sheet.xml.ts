@@ -1,10 +1,17 @@
-import { ISheet, ICellType } from "../..";
-import { rowColumnToVbPosition, indexToVbIndex, calculateExtant, Equation } from '../../util'
+import { ISheet, ICellType, IBorder } from "../..";
+import { rowColumnToVbPosition, indexToVbIndex, calculateExtant, Equation, getBorderKey } from '../../util'
 
 
 const generateSheetXml = (
-  sheet: ISheet
+  sheet: ISheet,
+  borderStyles: Map<string, IBorder>
 ) => {
+  // Create a reverse mapping from border style to index
+  const borderStyleToIndex = new Map<string, number>();
+  Array.from(borderStyles.keys()).forEach((key, index) => {
+    borderStyleToIndex.set(key, index);
+  });
+
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet
   xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -31,19 +38,26 @@ const generateSheetXml = (
       if (cellType !== ICellType.skip) {
         const cellPosition = rowColumnToVbPosition(cellIndex, rowIndex);
         const cellValue = cell.value || '';
+        
+        // Determine the style index for this cell
+        let styleIndex = 0; // Default to no-border style
+        if ('style' in cell && cell.style?.border) {
+          const borderKey = getBorderKey(cell.style.border);
+          styleIndex = borderStyleToIndex.get(borderKey) || 0;
+        }
 
         if (cell.type === ICellType.equation) {
 
           // todo: write now I'm restricting to use function which will only return number
           rowContent += `
-              <c r="${cellPosition}" t="n">
+              <c r="${cellPosition}" t="n" s="${styleIndex}">
                 <f aca="false">${cell.value.getEquation()}</f>
               </c>\n`;
 
         } else {
           
           rowContent += `
-              <c r="${cellPosition}" t="${cellType}">
+              <c r="${cellPosition}" t="${cellType}" s="${styleIndex}">
                 <v>${cellValue}</v>
               </c>\n`;
         }

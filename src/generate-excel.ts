@@ -8,10 +8,25 @@ import { generateStyleXml } from "./xl/styles.xml";
 import { generateTheme1 } from "./xl/theme/theme1.xml";
 import { generateWorkBookXml } from "./xl/workbook.xml";
 import { generateSheetXml } from "./xl/worksheets/sheet.xml";
-import { ICellType, IPage, ISheet, IWorkbook } from "./index";
-import { Equation, SkipCell } from "./util";
+import { ICellType, IPage, ISheet, IWorkbook, IBorder } from "./index";
+import { Equation, SkipCell, getBorderKey } from "./util";
 
 const generateTree = (workbook: IWorkbook) => {
+  // Collect all unique border styles from the workbook
+  const borderStyles = new Map<string, IBorder>();
+  borderStyles.set("none", {}); // Default no-border style
+  
+  workbook.sheets.forEach(sheet => {
+    sheet.rows.forEach(row => {
+      row.cells.forEach(cell => {
+        if ('style' in cell && cell.style?.border) {
+          const borderKey = getBorderKey(cell.style.border);
+          borderStyles.set(borderKey, cell.style.border);
+        }
+      });
+    });
+  });
+
   return {
     "[Content_Types].xml": generateContentTypesXml(workbook),
     "_rels/.rels": generateRels(),
@@ -19,10 +34,10 @@ const generateTree = (workbook: IWorkbook) => {
     "docProps/core.xml": generateCoreXml({}),
     "xl/_rels/workbook.xml.rels": generateWorkBookXmlRels(workbook),
     "xl/sharedStrings.xml": generateSharedStrings(workbook),
-    "xl/styles.xml": generateStyleXml(),
+    "xl/styles.xml": generateStyleXml(borderStyles),
     "xl/theme/theme1.xml": generateTheme1(),
     "xl/workbook.xml": generateWorkBookXml(workbook),
-    ...workbook.sheets.reduce((acc, sheet, idx) => ({ ...acc, [`xl/worksheets/sheet${idx + 1}.xml`]: generateSheetXml(sheet) }), {})
+    ...workbook.sheets.reduce((acc, sheet, idx) => ({ ...acc, [`xl/worksheets/sheet${idx + 1}.xml`]: generateSheetXml(sheet, borderStyles) }), {})
   };
 };
 
@@ -35,9 +50,11 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
   const strings: string[] = [];
   const sheets: ISheet[] = dump.map(({ title, content }) => {
     const rows = content.map(row => {
-      const cells = row.flatMap(content => {
+      const cells: any[] = [];
+      
+      row.forEach(content => {
         if (typeof content === 'number') {
-          return { type: ICellType.number, value: content };
+          cells.push({ type: ICellType.number, value: content });
         } else if (typeof content === 'string') {
           const type = ICellType.string;
           let value = strings.indexOf(content);
@@ -46,13 +63,29 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
             strings.push(content);
             value = strings.length - 1;
           }
-          return { type: ICellType.string, value };
+          cells.push({ type: ICellType.string, value });
         } else if (content instanceof SkipCell) {
-          return new Array(content.getSkipCell()).fill({ type: ICellType.skip, value: undefined });
+          for (let i = 0; i < content.getSkipCell(); i++) {
+            cells.push({ type: ICellType.skip, value: undefined });
+          }
         } else if (content instanceof Equation) {
-          return { type: ICellType.equation, value: content };
+          cells.push({ type: ICellType.equation, value: content });
+        } else if (content && typeof content === 'object' && 'type' in content) {
+          // Handle pre-built cell objects with styling
+          const cell = content as any;
+          if (cell.type === ICellType.string && typeof cell.value === 'string') {
+            // Convert string value to string index
+            let stringIndex = strings.indexOf(cell.value);
+            if (stringIndex === -1) {
+              strings.push(cell.value);
+              stringIndex = strings.length - 1;
+            }
+            cells.push({ ...cell, value: stringIndex });
+          } else {
+            cells.push(cell);
+          }
         } else {
-          return { type: ICellType.skip };
+          cells.push({ type: ICellType.skip });
         }
       });
 

@@ -1,4 +1,4 @@
-import { IRows } from ".";
+import { IRows, IBorder, BorderStyle, ICellType, ICellStyle, ICell } from ".";
 
 const indexToVbIndex = (index: number) => index + 1;
 
@@ -43,4 +43,108 @@ class Equation {
 
 const writeEquation = (equation: string) => new Equation(equation);
 
-export { indexToVbIndex, indexToVbRelationIndex, indexToRowIndex, rowColumnToVbPosition, calculateExtant, SkipCell, skipCell, Equation, writeEquation }
+// Helper functions for creating border styles
+const createBorder = (border: IBorder): IBorder => border;
+
+const createAllBorders = (
+  style: BorderStyle = BorderStyle.thin, 
+  color: string = "#000000"
+): IBorder => ({
+  top: style,
+  right: style,
+  bottom: style,
+  left: style,
+  color
+});
+
+const createTopBorder = (
+  style: BorderStyle = BorderStyle.thin, 
+  color: string = "#000000"
+): IBorder => ({
+  top: style,
+  color
+});
+
+const createBottomBorder = (
+  style: BorderStyle = BorderStyle.thin, 
+  color: string = "#000000"
+): IBorder => ({
+  bottom: style,
+  color
+});
+
+const createLeftBorder = (
+  style: BorderStyle = BorderStyle.thin, 
+  color: string = "#000000"
+): IBorder => ({
+  left: style,
+  color
+});
+
+const createRightBorder = (
+  style: BorderStyle = BorderStyle.thin, 
+  color: string = "#000000"
+): IBorder => ({
+  right: style,
+  color
+});
+
+// Generate a unique string key for a border configuration to use in style mapping
+const getBorderKey = (border?: IBorder): string => {
+  if (!border) return "none";
+  
+  const parts = [
+    border.top || "none",
+    border.right || "none", 
+    border.bottom || "none",
+    border.left || "none",
+    border.color || "#000000"
+  ];
+  
+  return parts.join("-");
+};
+
+// Helper functions to create styled cells
+const createStyledCell = (value: string | number, style?: ICellStyle): ICell => {
+  if (typeof value === 'string') {
+    return {
+      type: ICellType.string,
+      value: value as any, // Will be converted to index later
+      style
+    } as any;
+  } else {
+    return {
+      type: ICellType.number,
+      value,
+      style
+    };
+  }
+};
+
+const createBorderedCell = (
+  value: string | number, 
+  border: IBorder
+): ICell => {
+  return createStyledCell(value, { border });
+};
+
+export { 
+  indexToVbIndex, 
+  indexToVbRelationIndex, 
+  indexToRowIndex, 
+  rowColumnToVbPosition, 
+  calculateExtant, 
+  SkipCell, 
+  skipCell, 
+  Equation, 
+  writeEquation,
+  createBorder,
+  createAllBorders,
+  createTopBorder,
+  createBottomBorder,
+  createLeftBorder,
+  createRightBorder,
+  getBorderKey,
+  createStyledCell,
+  createBorderedCell
+}
