@@ -1,6 +1,23 @@
+/**
+ * @fileoverview Excel workbook.xml generation
+ * Handles the generation of the main workbook.xml file which defines workbook structure and sheet references
+ * This is the central file that ties together all worksheets and defines the workbook properties
+ * 
+ * @author Maifee Ul Asad <maifeeulasad@gmail.com>
+ * @license MIT
+ */
+
 import { IWorkbook } from "..";
 import { indexToVbIndex, indexToVbRelationIndex } from '../util'
 
+/**
+ * Generates the main workbook.xml file for an Excel workbook
+ * Creates the workbook structure definition including sheet references, properties, and metadata
+ * Contains workbook-level settings and references to all worksheets
+ * @param {IWorkbook} workbook - The workbook data containing sheets and metadata
+ * @returns {string} Complete XML content for workbook.xml file
+ * @internal
+ */
 const generateWorkBookXml = (workbook: IWorkbook) => 
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x15 xr xr6 xr10 xr2" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr6="http://schemas.microsoft.com/office/spreadsheetml/2016/revision6" xmlns:xr10="http://schemas.microsoft.com/office/spreadsheetml/2016/revision10" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2">
@@ -38,5 +55,11 @@ const generateWorkBookXml = (workbook: IWorkbook) =>
 </workbook>
 `;
 
-
+/**
+ * Exports the main workbook XML generation function
+ * @name generateWorkBookXml
+ * @function
+ * @description Generates complete workbook.xml content defining workbook structure and sheet references
+ * @see {@link generateWorkBookXml} - Main workbook generation function
+ */
 export { generateWorkBookXml };
