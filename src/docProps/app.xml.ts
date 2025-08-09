@@ -1,5 +1,22 @@
+/**
+ * @fileoverview Excel application properties XML generation
+ * Handles the generation of app.xml which contains application-specific properties and metadata
+ * This file includes information about worksheets, document security, and application version
+ * 
+ * @author Maifee Ul Asad <maifeeulasad@gmail.com>
+ * @license MIT
+ */
+
 import { IWorkbook } from '../index'
 
+/**
+ * Generates the app.xml file for an Excel workbook
+ * Creates application properties including worksheet information, security settings, and version data
+ * This file is part of the OpenXML document properties and provides metadata about the application
+ * @param {IWorkbook} workbook - The workbook data containing sheets and application metadata
+ * @returns {string} Complete XML content for app.xml file
+ * @internal
+ */
 const generateAppXml = (workbook: IWorkbook) =>
     `
   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -48,4 +65,11 @@ const generateAppXml = (workbook: IWorkbook) =>
 	</Properties>
 `;
 
+/**
+ * Exports the application properties XML generation function
+ * @name generateAppXml
+ * @function
+ * @description Generates app.xml containing application-specific properties and worksheet metadata
+ * @see {@link generateAppXml} - Main application properties generation function
+ */
 export { generateAppXml };
