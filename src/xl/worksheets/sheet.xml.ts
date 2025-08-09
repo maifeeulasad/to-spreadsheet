@@ -1,17 +1,42 @@
+/**
+ * @fileoverview Excel worksheet sheet.xml generation
+ * Handles the generation of Excel worksheet XML including cell data, positioning, and styling
+ * This file creates the individual sheet.xml files that contain all the actual cell data and formatting
+ * 
+ * @author Maifee Ul Asad <maifeeulasad@gmail.com>
+ * @license MIT
+ */
+
 import { ISheet, ICellType, IBorder } from "../..";
 import { rowColumnToVbPosition, indexToVbIndex, calculateExtant, Equation, getBorderKey } from '../../util'
 
-
+/**
+ * Generates the complete XML content for an Excel worksheet
+ * Creates worksheet XML with cell data, styling references, and proper Excel structure
+ * @param {ISheet} sheet - Sheet data containing rows and cells
+ * @param {Map<string, IBorder>} borderStyles - Map of unique border styles used in the workbook
+ * @returns {string} Complete XML content for sheet.xml file
+ * @internal
+ */
 const generateSheetXml = (
   sheet: ISheet,
   borderStyles: Map<string, IBorder>
 ) => {
-  // Create a reverse mapping from border style to index
+  /**
+   * Create a reverse mapping from border style to index
+   * This allows us to reference border styles by index in cell styling
+   * @type {Map<string, number>}
+   */
   const borderStyleToIndex = new Map<string, number>();
   Array.from(borderStyles.keys()).forEach((key, index) => {
     borderStyleToIndex.set(key, index);
   });
 
+  /**
+   * Complete XML template for Excel worksheet
+   * Includes worksheet metadata, dimensions, views, and all cell data
+   * Follows OpenXML specification for Excel worksheets
+   */
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet
   xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -30,32 +55,50 @@ const generateSheetXml = (
   <sheetData>
   ${sheet.rows.map((row, rowIndex) => {
     let rowContent = '';
+    // Generate opening row tag with proper row index
     rowContent += `<row r="${indexToVbIndex(rowIndex)}">\n`;
 
+    /**
+     * Process each cell in the row
+     * Handles different cell types (skip, equation, regular values)
+     * Applies appropriate styling and positioning
+     */
     row.cells.forEach((cell, cellIndex) => {
       const cellType = cell.type;
 
+      // Skip cells marked as ICellType.skip (for merged cells, etc.)
       if (cellType !== ICellType.skip) {
+        // Convert array indices to Excel position (e.g., A1, B2)
         const cellPosition = rowColumnToVbPosition(cellIndex, rowIndex);
         const cellValue = cell.value || '';
         
-        // Determine the style index for this cell
+        /**
+         * Determine the style index for this cell
+         * Style index references the border style in styles.xml
+         * Default to 0 (no border) if no style is specified
+         */
         let styleIndex = 0; // Default to no-border style
         if ('style' in cell && cell.style?.border) {
           const borderKey = getBorderKey(cell.style.border);
           styleIndex = borderStyleToIndex.get(borderKey) || 0;
         }
 
+        /**
+         * Handle equation cells differently from regular value cells
+         * Equations use <f> tag for formula and type "n" for numeric result
+         */
         if (cell.type === ICellType.equation) {
-
-          // todo: write now I'm restricting to use function which will only return number
+          // TODO: Currently restricting to functions that return numbers only
           rowContent += `
               <c r="${cellPosition}" t="n" s="${styleIndex}">
                 <f aca="false">${cell.value.getEquation()}</f>
               </c>\n`;
 
         } else {
-          
+          /**
+           * Handle regular value cells
+           * Uses <v> tag for value content and appropriate cell type
+           */
           rowContent += `
               <c r="${cellPosition}" t="${cellType}" s="${styleIndex}">
                 <v>${cellValue}</v>
@@ -64,6 +107,7 @@ const generateSheetXml = (
       }
     });
 
+    // Close the row tag
     rowContent += '</row>\n';
     return rowContent;
   }).join('')
@@ -74,4 +118,11 @@ const generateSheetXml = (
 </worksheet>
 `};
 
+/**
+ * Exports the main worksheet XML generation function
+ * @name generateSheetXml
+ * @function
+ * @description Generates complete sheet.xml content for Excel worksheet with cell data and styling support
+ * @see {@link generateSheetXml} - Main worksheet generation function
+ */
 export { generateSheetXml };
