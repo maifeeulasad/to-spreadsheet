@@ -6,7 +6,7 @@
  * @license MIT
  */
 
-import { IRows, IBorder, BorderStyle, ICellType, ICellStyle, ICell } from ".";
+import { IRows, IBorder, BorderStyle, ICellType, ICellStyle, ICell, HorizontalAlignment, VerticalAlignment } from ".";
 
 /**
  * Converts zero-based index to one-based index (Excel format)
@@ -247,7 +247,9 @@ const getStyleKey = (style?: ICellStyle): string => {
   const parts = [
     getBorderKey(style.border),
     style.backgroundColor || "no-bg",
-    style.foregroundColor || "no-fg"
+    style.foregroundColor || "no-fg",
+    style.horizontalAlignment || "no-halign",
+    style.verticalAlignment || "no-valign"
   ];
   
   return parts.join("|");
@@ -402,6 +404,78 @@ const createBackgroundDateCell = (
 };
 
 /**
+ * Creates a cell with horizontal alignment
+ * @param {string | number | Date} value - Cell value
+ * @param {HorizontalAlignment} alignment - Horizontal alignment option
+ * @returns {ICell} Cell with horizontal alignment styling
+ * @example createHorizontallyAlignedCell('Center Me', HorizontalAlignment.center)
+ */
+const createHorizontallyAlignedCell = (
+  value: string | number | Date,
+  alignment: HorizontalAlignment
+): ICell => {
+  if (value instanceof Date) {
+    return createDateCell(value, { horizontalAlignment: alignment });
+  }
+  return createStyledCell(value, { horizontalAlignment: alignment });
+};
+
+/**
+ * Creates a cell with vertical alignment
+ * @param {string | number | Date} value - Cell value
+ * @param {VerticalAlignment} alignment - Vertical alignment option
+ * @returns {ICell} Cell with vertical alignment styling
+ * @example createVerticallyAlignedCell('Top Align', VerticalAlignment.top)
+ */
+const createVerticallyAlignedCell = (
+  value: string | number | Date,
+  alignment: VerticalAlignment
+): ICell => {
+  if (value instanceof Date) {
+    return createDateCell(value, { verticalAlignment: alignment });
+  }
+  return createStyledCell(value, { verticalAlignment: alignment });
+};
+
+/**
+ * Creates a cell with both horizontal and vertical alignment
+ * @param {string | number | Date} value - Cell value
+ * @param {HorizontalAlignment} horizontal - Horizontal alignment option
+ * @param {VerticalAlignment} vertical - Vertical alignment option
+ * @returns {ICell} Cell with both alignment styles
+ * @example createAlignedCell('Center Both', HorizontalAlignment.center, VerticalAlignment.center)
+ */
+const createAlignedCell = (
+  value: string | number | Date,
+  horizontal: HorizontalAlignment,
+  vertical: VerticalAlignment
+): ICell => {
+  if (value instanceof Date) {
+    return createDateCell(value, { 
+      horizontalAlignment: horizontal,
+      verticalAlignment: vertical 
+    });
+  }
+  return createStyledCell(value, { 
+    horizontalAlignment: horizontal,
+    verticalAlignment: vertical 
+  });
+};
+
+/**
+ * Creates a center-aligned cell (both horizontally and vertically)
+ * Convenience function for the most common alignment case
+ * @param {string | number | Date} value - Cell value
+ * @returns {ICell} Cell centered both horizontally and vertically
+ * @example createCenteredCell('Centered Text')
+ */
+const createCenteredCell = (
+  value: string | number | Date
+): ICell => {
+  return createAlignedCell(value, HorizontalAlignment.center, VerticalAlignment.center);
+};
+
+/**
  * Export all utility functions and classes for external use
  * Includes positioning utilities, cell creation helpers, border functions, and internal utilities
  */
@@ -431,5 +505,9 @@ export {
   createBackgroundCell,
   createForegroundCell,
   createColoredCell,
-  createBackgroundDateCell
+  createBackgroundDateCell,
+  createHorizontallyAlignedCell,
+  createVerticallyAlignedCell,
+  createAlignedCell,
+  createCenteredCell
 }
