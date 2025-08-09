@@ -66,20 +66,47 @@ const generateBorderXml = (border: IBorder): string => {
  * Generates the complete styles.xml content for an Excel workbook
  * Creates a comprehensive styling definition including fonts, fills, borders, and cell formats
  * @param {Map<string, IBorder>} borderStyles - Map of unique border styles used in the workbook
+ * @param {boolean} hasDateCells - Whether the workbook contains date cells requiring date formatting
  * @returns {string} Complete XML content for styles.xml file
  * @internal
  */
-const generateStyleXml = (borderStyles: Map<string, IBorder>) => {
+const generateStyleXml = (borderStyles: Map<string, IBorder>, hasDateCells: boolean = false) => {
   const borderArray = Array.from(borderStyles.values());
   const borderCount = borderArray.length;
   
   // Generate XML for all border definitions
   const bordersXml = borderArray.map(border => generateBorderXml(border)).join('');
   
+  // Generate number formats if date cells are present
+  const numFmtsXml = hasDateCells 
+    ? `<numFmts count="1">
+        <numFmt numFmtId="164" formatCode="mm/dd/yyyy" />
+    </numFmts>`
+    : '';
+  
   // Generate cell format definitions that reference the borders
-  const cellXfsXml = borderArray.map((_, index) => 
-    `<xf numFmtId="0" fontId="0" fillId="0" borderId="${index}" xfId="0" />`
-  ).join('\n        ');
+  // If we have date cells, we need both regular and date formats
+  let cellXfsXml = '';
+  let cellXfsCount = borderCount;
+  
+  if (hasDateCells) {
+    // Generate formats for regular cells (numFmtId=0)
+    cellXfsXml += borderArray.map((_, index) => 
+      `<xf numFmtId="0" fontId="0" fillId="0" borderId="${index}" xfId="0" />`
+    ).join('\n        ');
+    
+    // Generate formats for date cells (numFmtId=164)
+    cellXfsXml += '\n        ';
+    cellXfsXml += borderArray.map((_, index) => 
+      `<xf numFmtId="164" fontId="0" fillId="0" borderId="${index}" xfId="0" />`
+    ).join('\n        ');
+    
+    cellXfsCount = borderCount * 2; // Double the formats for date support
+  } else {
+    cellXfsXml = borderArray.map((_, index) => 
+      `<xf numFmtId="0" fontId="0" fillId="0" borderId="${index}" xfId="0" />`
+    ).join('\n        ');
+  }
 
   /**
    * Complete XML template for Excel styles.xml file
@@ -88,6 +115,7 @@ const generateStyleXml = (borderStyles: Map<string, IBorder>) => {
    */
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">
+    ${numFmtsXml}
     <fonts count="1" x14ac:knownFonts="1">
         <font>
             <sz val="11" />
@@ -111,7 +139,7 @@ const generateStyleXml = (borderStyles: Map<string, IBorder>) => {
     <cellStyleXfs count="1">
         <xf numFmtId="0" fontId="0" fillId="0" borderId="0" />
     </cellStyleXfs>
-    <cellXfs count="${borderCount}">
+    <cellXfs count="${cellXfsCount}">
         ${cellXfsXml}
     </cellXfs>
     <cellStyles count="1">
