@@ -8,7 +8,7 @@
  */
 
 import { generateExcel, EnvironmentType } from "./generate-excel";
-import { SkipCell, skipCell, Equation, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell } from "./util";
+import { SkipCell, skipCell, Equation, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell, createBackgroundCell, createForegroundCell, createColoredCell, createBackgroundDateCell } from "./util";
 
 /**
  * Enum representing different cell types in Excel
@@ -72,6 +72,10 @@ interface IBorder {
 interface ICellStyle {
   /** Border configuration for the cell */
   border?: IBorder;
+  /** Background (fill) color in hex format (e.g., "#FFFF00" for yellow) */
+  backgroundColor?: string;
+  /** Foreground (font) color in hex format (e.g., "#000000" for black text) */
+  foregroundColor?: string;
 }
 
 /**
@@ -273,6 +277,53 @@ const sampleData = [
         'Mixed Content'
       ]
     ] 
+  },
+  // Demonstration of color functionality
+  { 
+    title: 'ColorDemo', 
+    content: [
+      [
+        // Header row with colors
+        'Feature',
+        'Background Color',
+        'Foreground Color',
+        'Both Colors'
+      ],
+      [
+        // Background colors
+        'Yellow Background',
+        createBackgroundCell('Highlighted', '#FFFF00'),
+        createForegroundCell('Red Text', '#FF0000'),
+        createColoredCell('Both', '#00FF00', '#FF0000')
+      ],
+      [
+        'More Colors',
+        createBackgroundCell('Blue BG', '#0000FF'),
+        createForegroundCell('Green Text', '#00FF00'),
+        createColoredCell('Purple/White', '#800080', '#FFFFFF')
+      ],
+      [
+        // Colored dates
+        'Date Colors',
+        createBackgroundDateCell(new Date(), '#FFCCCC'),
+        createDateCell(new Date('2024-12-25'), { 
+          backgroundColor: '#00FF00',
+          foregroundColor: '#FF0000'
+        }),
+        'Mixed with dates'
+      ],
+      [
+        // Combined with borders
+        'With Borders',
+        createStyledCell('Complex', {
+          backgroundColor: '#FFFFCC',
+          foregroundColor: '#0000FF',
+          border: createAllBorders(BorderStyle.thick, '#000000')
+        }),
+        'Plain text',
+        42
+      ]
+    ] 
   }
 ]
 
@@ -283,4 +334,4 @@ const sampleData = [
  * This includes the main generation function, sample data, environment types,
  * utility functions, and all border/styling helper functions
  */
-export { generateExcel, sampleData, EnvironmentType, skipCell, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell };
+export { generateExcel, sampleData, EnvironmentType, skipCell, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell, createBackgroundCell, createForegroundCell, createColoredCell, createBackgroundDateCell };

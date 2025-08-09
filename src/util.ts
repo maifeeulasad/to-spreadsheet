@@ -235,6 +235,25 @@ const getBorderKey = (border?: IBorder): string => {
 };
 
 /**
+ * Generates a unique key string for complete cell style configuration
+ * Used internally to identify unique style combinations for Excel styling
+ * @param {ICellStyle} style - Complete style configuration object
+ * @returns {string} Unique key representing the complete style configuration
+ * @internal
+ */
+const getStyleKey = (style?: ICellStyle): string => {
+  if (!style) return "default";
+  
+  const parts = [
+    getBorderKey(style.border),
+    style.backgroundColor || "no-bg",
+    style.foregroundColor || "no-fg"
+  ];
+  
+  return parts.join("|");
+};
+
+/**
  * Creates a styled cell with custom styling options
  * @param {string | number} value - Cell value (string or number)
  * @param {ICellStyle} style - Optional styling configuration
@@ -321,6 +340,68 @@ const createBorderedDateCell = (
 };
 
 /**
+ * Creates a cell with background color styling
+ * Convenience function for applying background color to cells
+ * @param {string | number} value - Cell value (string or number)
+ * @param {string} backgroundColor - Background color in hex format (e.g., "#FFFF00")
+ * @returns {ICell} Cell with background color styling applied
+ * @example createBackgroundCell('Highlighted', '#FFFF00')
+ */
+const createBackgroundCell = (
+  value: string | number,
+  backgroundColor: string
+): ICell => {
+  return createStyledCell(value, { backgroundColor });
+};
+
+/**
+ * Creates a cell with foreground (text) color styling
+ * Convenience function for applying text color to cells
+ * @param {string | number} value - Cell value (string or number)
+ * @param {string} foregroundColor - Text color in hex format (e.g., "#FF0000")
+ * @returns {ICell} Cell with text color styling applied
+ * @example createForegroundCell('Red Text', '#FF0000')
+ */
+const createForegroundCell = (
+  value: string | number,
+  foregroundColor: string
+): ICell => {
+  return createStyledCell(value, { foregroundColor });
+};
+
+/**
+ * Creates a cell with both background and foreground color styling
+ * Convenience function for applying both background and text colors
+ * @param {string | number} value - Cell value (string or number)
+ * @param {string} backgroundColor - Background color in hex format
+ * @param {string} foregroundColor - Text color in hex format
+ * @returns {ICell} Cell with color styling applied
+ * @example createColoredCell('Styled Text', '#FFFF00', '#FF0000')
+ */
+const createColoredCell = (
+  value: string | number,
+  backgroundColor: string,
+  foregroundColor: string
+): ICell => {
+  return createStyledCell(value, { backgroundColor, foregroundColor });
+};
+
+/**
+ * Creates a date cell with background color styling
+ * Convenience function for applying background color to date cells
+ * @param {Date} date - JavaScript Date object
+ * @param {string} backgroundColor - Background color in hex format
+ * @returns {ICell} Date cell with background color styling applied
+ * @example createBackgroundDateCell(new Date(), '#FFFF00')
+ */
+const createBackgroundDateCell = (
+  date: Date,
+  backgroundColor: string
+): ICell => {
+  return createDateCell(date, { backgroundColor });
+};
+
+/**
  * Export all utility functions and classes for external use
  * Includes positioning utilities, cell creation helpers, border functions, and internal utilities
  */
@@ -341,9 +422,14 @@ export {
   createLeftBorder,
   createRightBorder,
   getBorderKey,
+  getStyleKey,
   createStyledCell,
   createBorderedCell,
   dateToExcelSerial,
   createDateCell,
-  createBorderedDateCell
+  createBorderedDateCell,
+  createBackgroundCell,
+  createForegroundCell,
+  createColoredCell,
+  createBackgroundDateCell
 }

@@ -1,13 +1,13 @@
 /**
  * @fileoverview Excel styles.xml generation
- * Handles the generation of Excel styling XML including borders, fonts, and cell formats
+ * Handles the generation of Excel styling XML including borders, fonts, fills, and cell formats
  * This file creates the styles.xml file that defines all visual styling for the workbook
  * 
  * @author Maifee Ul Asad <maifeeulasad@gmail.com>
  * @license MIT
  */
 
-import { IBorder, BorderStyle } from "..";
+import { IBorder, BorderStyle, ICellStyle } from "..";
 
 /**
  * Generates XML representation of border styling for a single border configuration
@@ -63,19 +63,93 @@ const generateBorderXml = (border: IBorder): string => {
 };
 
 /**
+ * Generates XML representation of font styling for foreground color
+ * @param {string} color - Optional hex color string for font color
+ * @returns {string} XML string representing the font styling
+ * @internal
+ */
+const generateFontXml = (color?: string): string => {
+  const colorXml = color 
+    ? `<color rgb="${color.replace('#', 'FF')}" />`
+    : '<color theme="1" />';
+    
+  return `
+    <font>
+      <sz val="11" />
+      ${colorXml}
+      <name val="Calibri" />
+      <family val="2" />
+      <scheme val="minor" />
+    </font>`;
+};
+
+/**
+ * Generates XML representation of fill styling for background color
+ * @param {string} color - Optional hex color string for background color
+ * @returns {string} XML string representing the fill styling
+ * @internal
+ */
+const generateFillXml = (color?: string): string => {
+  if (!color) {
+    return `
+    <fill>
+      <patternFill patternType="none" />
+    </fill>`;
+  }
+  
+  return `
+    <fill>
+      <patternFill patternType="solid">
+        <fgColor rgb="${color.replace('#', 'FF')}" />
+        <bgColor indexed="64" />
+      </patternFill>
+    </fill>`;
+};
+
+/**
  * Generates the complete styles.xml content for an Excel workbook
  * Creates a comprehensive styling definition including fonts, fills, borders, and cell formats
- * @param {Map<string, IBorder>} borderStyles - Map of unique border styles used in the workbook
+ * @param {Map<string, ICellStyle>} styleMap - Map of unique complete styles used in the workbook
  * @param {boolean} hasDateCells - Whether the workbook contains date cells requiring date formatting
  * @returns {string} Complete XML content for styles.xml file
  * @internal
  */
-const generateStyleXml = (borderStyles: Map<string, IBorder>, hasDateCells: boolean = false) => {
-  const borderArray = Array.from(borderStyles.values());
-  const borderCount = borderArray.length;
+const generateStyleXml = (styleMap: Map<string, ICellStyle>, hasDateCells: boolean = false) => {
+  const styles = Array.from(styleMap.values());
+  const styleCount = styles.length;
   
-  // Generate XML for all border definitions
+  // Extract unique borders, fonts, and fills from all styles
+  const uniqueBorders = new Map<string, IBorder>();
+  const uniqueFonts = new Map<string, string>();
+  const uniqueFills = new Map<string, string>();
+  
+  // Add default styles
+  uniqueBorders.set("none", {});
+  uniqueFonts.set("default", "");
+  uniqueFills.set("none", "");
+  uniqueFills.set("gray125", ""); // Excel default
+  
+  // Collect unique styles
+  styles.forEach(style => {
+    if (style.border) {
+      uniqueBorders.set(JSON.stringify(style.border), style.border);
+    }
+    if (style.foregroundColor) {
+      uniqueFonts.set(style.foregroundColor, style.foregroundColor);
+    }
+    if (style.backgroundColor) {
+      uniqueFills.set(style.backgroundColor, style.backgroundColor);
+    }
+  });
+  
+  // Generate XML sections
+  const borderArray = Array.from(uniqueBorders.values());
+  const fontArray = Array.from(uniqueFonts.values());
+  const fillArray = Array.from(uniqueFills.values());
+  
   const bordersXml = borderArray.map(border => generateBorderXml(border)).join('');
+  const fontsXml = fontArray.map(color => generateFontXml(color || undefined)).join('');
+  const fillsXml = fillArray.map(color => generateFillXml(color || undefined)).join('');
   
   // Generate number formats if date cells are present
   const numFmtsXml = hasDateCells 
@@ -84,28 +158,36 @@ const generateStyleXml = (borderStyles: Map<string, IBorder>, hasDateCells: bool
     </numFmts>`
     : '';
   
-  // Generate cell format definitions that reference the borders
-  // If we have date cells, we need both regular and date formats
+  // Generate cell format definitions
   let cellXfsXml = '';
-  let cellXfsCount = borderCount;
+  let cellXfsCount = styleCount;
   
   if (hasDateCells) {
-    // Generate formats for regular cells (numFmtId=0)
-    cellXfsXml += borderArray.map((_, index) => 
-      `<xf numFmtId="0" fontId="0" fillId="0" borderId="${index}" xfId="0" />`
-    ).join('\n        ');
+    // Generate formats for regular cells
+    cellXfsXml += styles.map((style, index) => {
+      const borderIndex = Array.from(uniqueBorders.keys()).indexOf(JSON.stringify(style.border || {}));
+      const fontIndex = Array.from(uniqueFonts.keys()).indexOf(style.foregroundColor || "default");
+      const fillIndex = Array.from(uniqueFills.keys()).indexOf(style.backgroundColor || "none");
+      return `<xf numFmtId="0" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0" />`;
+    }).join('\n        ');
     
-    // Generate formats for date cells (numFmtId=164)
+    // Generate formats for date cells
     cellXfsXml += '\n        ';
-    cellXfsXml += borderArray.map((_, index) => 
-      `<xf numFmtId="164" fontId="0" fillId="0" borderId="${index}" xfId="0" />`
-    ).join('\n        ');
+    cellXfsXml += styles.map((style, index) => {
+      const borderIndex = Array.from(uniqueBorders.keys()).indexOf(JSON.stringify(style.border || {}));
+      const fontIndex = Array.from(uniqueFonts.keys()).indexOf(style.foregroundColor || "default");
+      const fillIndex = Array.from(uniqueFills.keys()).indexOf(style.backgroundColor || "none");
+      return `<xf numFmtId="164" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0" />`;
+    }).join('\n        ');
     
-    cellXfsCount = borderCount * 2; // Double the formats for date support
+    cellXfsCount = styleCount * 2;
   } else {
-    cellXfsXml = borderArray.map((_, index) => 
-      `<xf numFmtId="0" fontId="0" fillId="0" borderId="${index}" xfId="0" />`
-    ).join('\n        ');
+    cellXfsXml = styles.map((style, index) => {
+      const borderIndex = Array.from(uniqueBorders.keys()).indexOf(JSON.stringify(style.border || {}));
+      const fontIndex = Array.from(uniqueFonts.keys()).indexOf(style.foregroundColor || "default");
+      const fillIndex = Array.from(uniqueFills.keys()).indexOf(style.backgroundColor || "none");
+      return `<xf numFmtId="0" fontId="${fontIndex}" fillId="${fillIndex}" borderId="${borderIndex}" xfId="0" />`;
+    }).join('\n        ');
   }
 
   /**
@@ -116,24 +198,13 @@ const generateStyleXml = (borderStyles: Map<string, IBorder>, hasDateCells: bool
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">
     ${numFmtsXml}
-    <fonts count="1" x14ac:knownFonts="1">
-        <font>
-            <sz val="11" />
-            <color theme="1" />
-            <name val="Calibri" />
-            <family val="2" />
-            <scheme val="minor" />
-        </font>
+    <fonts count="${fontArray.length}" x14ac:knownFonts="1">
+        ${fontsXml}
     </fonts>
-    <fills count="2">
-        <fill>
-            <patternFill patternType="none" />
-        </fill>
-        <fill>
-            <patternFill patternType="gray125" />
-        </fill>
+    <fills count="${fillArray.length}">
+        ${fillsXml}
     </fills>
-    <borders count="${borderCount}">
+    <borders count="${borderArray.length}">
         ${bordersXml}
     </borders>
     <cellStyleXfs count="1">

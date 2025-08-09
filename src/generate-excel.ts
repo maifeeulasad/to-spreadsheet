@@ -17,8 +17,8 @@ import { generateStyleXml } from "./xl/styles.xml";
 import { generateTheme1 } from "./xl/theme/theme1.xml";
 import { generateWorkBookXml } from "./xl/workbook.xml";
 import { generateSheetXml } from "./xl/worksheets/sheet.xml";
-import { ICellType, IPage, ISheet, IWorkbook, IBorder } from "./index";
-import { Equation, SkipCell, getBorderKey } from "./util";
+import { ICellType, IPage, ISheet, IWorkbook, IBorder, ICellStyle } from "./index";
+import { Equation, SkipCell, getBorderKey, getStyleKey } from "./util";
 
 /**
  * Generates the complete XML file structure for an Excel workbook
@@ -28,9 +28,9 @@ import { Equation, SkipCell, getBorderKey } from "./util";
  * @internal
  */
 const generateTree = (workbook: IWorkbook) => {
-  // Collect all unique border styles from the workbook
-  const borderStyles = new Map<string, IBorder>();
-  borderStyles.set("none", {}); // Default no-border style
+  // Collect all unique complete styles from the workbook
+  const styleMap = new Map<string, ICellStyle>();
+  styleMap.set("default", {}); // Default no-style
   
   // Check if workbook contains any date cells
   let hasDateCells = false;
@@ -43,10 +43,10 @@ const generateTree = (workbook: IWorkbook) => {
           hasDateCells = true;
         }
         
-        // Collect border styles
-        if ('style' in cell && cell.style?.border) {
-          const borderKey = getBorderKey(cell.style.border);
-          borderStyles.set(borderKey, cell.style.border);
+        // Collect complete styles (border, background, foreground colors)
+        if ('style' in cell && cell.style) {
+          const styleKey = getStyleKey(cell.style);
+          styleMap.set(styleKey, cell.style);
         }
       });
     });
@@ -59,10 +59,10 @@ const generateTree = (workbook: IWorkbook) => {
     "docProps/core.xml": generateCoreXml({}),
     "xl/_rels/workbook.xml.rels": generateWorkBookXmlRels(workbook),
     "xl/sharedStrings.xml": generateSharedStrings(workbook),
-    "xl/styles.xml": generateStyleXml(borderStyles, hasDateCells),
+    "xl/styles.xml": generateStyleXml(styleMap, hasDateCells),
     "xl/theme/theme1.xml": generateTheme1(),
     "xl/workbook.xml": generateWorkBookXml(workbook),
-    ...workbook.sheets.reduce((acc, sheet, idx) => ({ ...acc, [`xl/worksheets/sheet${idx + 1}.xml`]: generateSheetXml(sheet, borderStyles, hasDateCells) }), {})
+    ...workbook.sheets.reduce((acc, sheet, idx) => ({ ...acc, [`xl/worksheets/sheet${idx + 1}.xml`]: generateSheetXml(sheet, styleMap, hasDateCells) }), {})
   };
 };
 
