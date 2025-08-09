@@ -273,6 +273,54 @@ const createBorderedCell = (
 };
 
 /**
+ * Converts JavaScript Date object to Excel date serial number
+ * Excel uses the number of days since January 1, 1900 as its date format
+ * Note: Excel incorrectly treats 1900 as a leap year, so we account for that
+ * @param {Date} date - JavaScript Date object
+ * @returns {number} Excel serial date number
+ * @internal
+ */
+const dateToExcelSerial = (date: Date): number => {
+  const excelEpoch = new Date(1900, 0, 1); // January 1, 1900
+  const diffTime = date.getTime() - excelEpoch.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Excel incorrectly treats 1900 as a leap year, so dates after Feb 28, 1900 need +1
+  return diffDays + (date >= new Date(1900, 1, 29) ? 2 : 1);
+};
+
+/**
+ * Creates a date cell with optional styling
+ * Converts JavaScript Date to Excel-compatible date format
+ * @param {Date} date - JavaScript Date object
+ * @param {ICellStyle} style - Optional styling configuration
+ * @returns {ICell} Date cell object
+ * @example createDateCell(new Date(), { border: createAllBorders() })
+ */
+const createDateCell = (date: Date, style?: ICellStyle): ICell => {
+  return {
+    type: ICellType.date,
+    value: date,
+    style
+  } as any;
+};
+
+/**
+ * Creates a date cell with border styling
+ * Convenience function that combines date cell creation with border styling
+ * @param {Date} date - JavaScript Date object
+ * @param {IBorder} border - Border configuration
+ * @returns {ICell} Date cell with border styling applied
+ * @example createBorderedDateCell(new Date(), createAllBorders(BorderStyle.thin))
+ */
+const createBorderedDateCell = (
+  date: Date, 
+  border: IBorder
+): ICell => {
+  return createDateCell(date, { border });
+};
+
+/**
  * Export all utility functions and classes for external use
  * Includes positioning utilities, cell creation helpers, border functions, and internal utilities
  */
@@ -294,5 +342,8 @@ export {
   createRightBorder,
   getBorderKey,
   createStyledCell,
-  createBorderedCell
+  createBorderedCell,
+  dateToExcelSerial,
+  createDateCell,
+  createBorderedDateCell
 }

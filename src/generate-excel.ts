@@ -32,9 +32,18 @@ const generateTree = (workbook: IWorkbook) => {
   const borderStyles = new Map<string, IBorder>();
   borderStyles.set("none", {}); // Default no-border style
   
+  // Check if workbook contains any date cells
+  let hasDateCells = false;
+  
   workbook.sheets.forEach(sheet => {
     sheet.rows.forEach(row => {
       row.cells.forEach(cell => {
+        // Check for date cells
+        if (cell.type === ICellType.date) {
+          hasDateCells = true;
+        }
+        
+        // Collect border styles
         if ('style' in cell && cell.style?.border) {
           const borderKey = getBorderKey(cell.style.border);
           borderStyles.set(borderKey, cell.style.border);
@@ -50,10 +59,10 @@ const generateTree = (workbook: IWorkbook) => {
     "docProps/core.xml": generateCoreXml({}),
     "xl/_rels/workbook.xml.rels": generateWorkBookXmlRels(workbook),
     "xl/sharedStrings.xml": generateSharedStrings(workbook),
-    "xl/styles.xml": generateStyleXml(borderStyles),
+    "xl/styles.xml": generateStyleXml(borderStyles, hasDateCells),
     "xl/theme/theme1.xml": generateTheme1(),
     "xl/workbook.xml": generateWorkBookXml(workbook),
-    ...workbook.sheets.reduce((acc, sheet, idx) => ({ ...acc, [`xl/worksheets/sheet${idx + 1}.xml`]: generateSheetXml(sheet, borderStyles) }), {})
+    ...workbook.sheets.reduce((acc, sheet, idx) => ({ ...acc, [`xl/worksheets/sheet${idx + 1}.xml`]: generateSheetXml(sheet, borderStyles, hasDateCells) }), {})
   };
 };
 
