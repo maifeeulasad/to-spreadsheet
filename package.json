@@ -26,7 +26,13 @@
     "data-export",
     "file-generation",
     "styling",
-    "formatting"
+    "formatting",
+    "import",
+    "read",
+    "reader",
+    "parse",
+    "parser",
+    "xlsx-reader"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
