@@ -17,7 +17,8 @@ import { generateStyleXml } from "./xl/styles.xml";
 import { generateTheme1 } from "./xl/theme/theme1.xml";
 import { generateWorkBookXml } from "./xl/workbook.xml";
 import { generateSheetXml } from "./xl/worksheets/sheet.xml";
-import { ICellType, IPage, ISheet, IWorkbook, IBorder, ICellStyle } from "./index";
+import { IPage, ISheet, IWorkbook, IBorder, ICellStyle } from "./index";
+import { ICellType } from "./types";
 import { Equation, SkipCell, getBorderKey, getStyleKey } from "./util";
 
 /**
@@ -78,21 +79,17 @@ enum EnvironmentType {
 }
 
 /**
- * Main function to generate Excel spreadsheet files
- * Converts input data to Excel format and outputs .xlsx file in the specified environment
+ * Converts the user-facing {@link IPage} array into the internal {@link IWorkbook}
+ * structure (resolving strings into the shared-strings table, expanding skip cells,
+ * etc). Extracted so it can be reused by the reader's round-trip tests without
+ * touching the filesystem.
  * @param {IPage[]} dump - Array of worksheet data
- * @param {EnvironmentType} environmentType - Target environment (Node.js or Browser)
- * @returns {Promise<void>} Promise that resolves when file generation is complete
- * @example
- * // Generate Excel file in Node.js
- * generateExcel(data, EnvironmentType.NODE);
- * 
- * // Generate Excel file in browser (triggers download)
- * generateExcel(data, EnvironmentType.BROWSER);
+ * @returns {IWorkbook} Internal workbook structure ready for {@link generateTree}
+ * @internal
  */
-const generateExcel = (dump: IPage[], environmentType: EnvironmentType = EnvironmentType.NODE): Promise<void> => {
+const buildWorkbook = (dump: IPage[]): IWorkbook => {
   const strings: string[] = [];
-  
+
   // Convert input pages to internal workbook structure
   const sheets: ISheet[] = dump.map(({ title, content }) => {
     const rows = content.map(row => {
@@ -147,11 +144,28 @@ const generateExcel = (dump: IPage[], environmentType: EnvironmentType = Environ
     return { title, rows };
   });
 
-  const workbook: IWorkbook = {
+  return {
     sheets,
     strings,
     filename: "tem.xlsx"
   };
+};
+
+/**
+ * Main function to generate Excel spreadsheet files
+ * Converts input data to Excel format and outputs .xlsx file in the specified environment
+ * @param {IPage[]} dump - Array of worksheet data
+ * @param {EnvironmentType} environmentType - Target environment (Node.js or Browser)
+ * @returns {Promise<void>} Promise that resolves when file generation is complete
+ * @example
+ * // Generate Excel file in Node.js
+ * generateExcel(data, EnvironmentType.NODE);
+ *
+ * // Generate Excel file in browser (triggers download)
+ * generateExcel(data, EnvironmentType.BROWSER);
+ */
+const generateExcel = (dump: IPage[], environmentType: EnvironmentType = EnvironmentType.NODE): Promise<void> => {
+  const workbook: IWorkbook = buildWorkbook(dump);
 
   if (environmentType === EnvironmentType.BROWSER) {
     return generateExcelWorkbookBrowser(workbook);
@@ -252,4 +266,4 @@ const generateExcelWorkbookBrowser = (workbook: IWorkbook): Promise<void> => {
  * Export the main generation function and environment type enum
  * These are the primary exports used by consuming applications
  */
-export { generateExcel, EnvironmentType };
+export { generateExcel, EnvironmentType, buildWorkbook, generateTree };

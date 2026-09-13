@@ -6,7 +6,8 @@
  * @license MIT
  */
 
-import { IRows, IBorder, BorderStyle, ICellType, ICellStyle, ICell, HorizontalAlignment, VerticalAlignment } from ".";
+import { IRows, IBorder, ICellStyle, ICell } from ".";
+import { BorderStyle, ICellType, HorizontalAlignment, VerticalAlignment } from "./types";
 
 /**
  * Converts zero-based index to one-based index (Excel format)

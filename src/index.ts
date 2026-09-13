@@ -9,84 +9,12 @@
 
 import { generateExcel, EnvironmentType } from "./generate-excel";
 import { SkipCell, skipCell, Equation, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell, createBackgroundCell, createForegroundCell, createColoredCell, createBackgroundDateCell, createHorizontallyAlignedCell, createVerticallyAlignedCell, createAlignedCell, createCenteredCell } from "./util";
-
-/**
- * Enum representing different cell types in Excel
- * @enum {string}
- */
-enum ICellType {
-  /** String cell type - contains text values */
-  string = "s",
-  /** Number cell type - contains numeric values */
-  number = "n",
-  /** Date cell type - contains date values */
-  date = "d",
-  /** Skip cell type - represents empty/skipped cells */
-  skip = "skip",
-  /** Equation cell type - contains Excel formulas */
-  equation = "equation",
-}
-
-/**
- * Enum representing different border styles available in Excel
- * @enum {string}
- */
-enum BorderStyle {
-  /** No border */
-  none = "none",
-  /** Thin border line (default) */
-  thin = "thin",
-  /** Medium thickness border line */
-  medium = "medium",
-  /** Thick border line */
-  thick = "thick",
-  /** Double border line */
-  double = "double",
-  /** Dotted border line */
-  dotted = "dotted",
-  /** Dashed border line */
-  dashed = "dashed",
-}
-
-/**
- * Enum representing horizontal alignment options for Excel cells
- * @enum {string}
- */
-enum HorizontalAlignment {
-  /** General alignment (Excel default) */
-  general = "general",
-  /** Left alignment */
-  left = "left",
-  /** Center alignment */
-  center = "center",
-  /** Right alignment */
-  right = "right",
-  /** Fill alignment */
-  fill = "fill",
-  /** Justify alignment */
-  justify = "justify",
-  /** Center across selection */
-  centerContinuous = "centerContinuous",
-  /** Distributed alignment */
-  distributed = "distributed",
-}
-
-/**
- * Enum representing vertical alignment options for Excel cells
- * @enum {string}
- */
-enum VerticalAlignment {
-  /** Top alignment */
-  top = "top",
-  /** Center alignment */
-  center = "center",
-  /** Bottom alignment */
-  bottom = "bottom",
-  /** Justify alignment */
-  justify = "justify",
-  /** Distributed alignment */
-  distributed = "distributed",
-}
+import { readExcel, ReadCellValue, IReadSheet, IReadWorkbook, IReadOptions, ReadExcelInput } from "./read-excel";
+import { parseCsv, ICsvOptions } from "./read-csv";
+// Runtime enums live in a dependency-free leaf module to avoid a circular import
+// between index and the writer modules; they are re-exported below so the public
+// API is unchanged.
+import { ICellType, BorderStyle, HorizontalAlignment, VerticalAlignment } from "./types";
 
 /**
  * Interface representing border configuration for a cell
@@ -240,6 +168,11 @@ interface IPage {
  * Export all type definitions and interfaces for external use
  */
 export { ICell, ISheet, IWorkbook, IRows, ICellType, IPage, BorderStyle, IBorder, ICellStyle, ICellDate, HorizontalAlignment, VerticalAlignment }
+
+/**
+ * Export reader (import) type definitions for external use
+ */
+export { ReadCellValue, IReadSheet, IReadWorkbook, IReadOptions, ReadExcelInput, ICsvOptions }
 
 /**
  * Sample data demonstrating various features of the library
@@ -424,3 +357,9 @@ const sampleData = [
  * utility functions, and all border/styling helper functions
  */
 export { generateExcel, sampleData, EnvironmentType, skipCell, writeEquation, createBorder, createAllBorders, createTopBorder, createBottomBorder, createLeftBorder, createRightBorder, createStyledCell, createBorderedCell, createDateCell, createBorderedDateCell, createBackgroundCell, createForegroundCell, createColoredCell, createBackgroundDateCell, createHorizontallyAlignedCell, createVerticallyAlignedCell, createAlignedCell, createCenteredCell };
+
+/**
+ * Export reader (import) functions: read .xlsx workbooks and parse CSV in both
+ * Node.js and browser environments
+ */
+export { readExcel, parseCsv };

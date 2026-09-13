@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node16/tsconfig.json",
-  "exclude": ["node_modules", "example"],
+  "exclude": ["node_modules", "example", "src/**/*.test.ts", "vitest.config.ts"],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
 

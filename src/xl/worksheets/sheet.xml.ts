@@ -7,7 +7,8 @@
  * @license MIT
  */
 
-import { ISheet, ICellType, IBorder, ICellStyle } from "../..";
+import { ISheet, IBorder, ICellStyle } from "../..";
+import { ICellType } from "../../types";
 import { rowColumnToVbPosition, indexToVbIndex, calculateExtant, Equation, getBorderKey, dateToExcelSerial, getStyleKey } from '../../util'
 
 /**

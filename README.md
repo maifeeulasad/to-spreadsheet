@@ -40,6 +40,55 @@ generateExcel(sampleData); // <-- by default generate XLSX for node
 generateExcel(sampleData, EnvironmentType.BROWSER); // <-- for browser
 ```
 
+# Reading / Importing
+
+`to-spreadsheet` can also read spreadsheets back into plain JavaScript values. The
+reader works in **both Node.js and the browser** and covers `.xlsx` (OOXML) files —
+those produced by this library as well as ordinary files from Excel and other tools —
+plus CSV text.
+
+## Reading an `.xlsx` file
+
+```ts
+import { readExcel } from 'to-spreadsheet/lib/index';
+
+// Node.js: pass a file path, a Buffer, or a Uint8Array/ArrayBuffer
+const workbook = await readExcel('./report.xlsx');
+
+// Browser: pass a File/Blob (e.g. from <input type="file">) or an ArrayBuffer
+// const workbook = await readExcel(file);
+
+workbook.sheets.forEach((sheet) => {
+  console.log(sheet.title);   // sheet (tab) name
+  console.log(sheet.rows);    // ReadCellValue[][] — a dense grid, gaps are null
+});
+```
+
+Each cell comes back as a `string`, `number`, `boolean`, `Date` (for date-formatted
+cells) or `null` (empty). Date conversion can be disabled to get the raw Excel serial:
+
+```ts
+const workbook = await readExcel('./report.xlsx', { cellDates: false });
+```
+
+Formula cells are surfaced on an optional parallel `sheet.formulas` grid (the formula
+text without the leading `=`), present only when a sheet contains at least one formula.
+
+## Parsing CSV
+
+```ts
+import { parseCsv } from 'to-spreadsheet/lib/index';
+
+const rows = parseCsv('name,age\nalice,30\n"bob, jr.",25');
+// [["name","age"], ["alice","30"], ["bob, jr.","25"]]
+
+// custom delimiter
+const tsv = parseCsv(tabText, { delimiter: '\t' });
+```
+
+`parseCsv` follows RFC 4180: quoted fields, escaped quotes (`""`), embedded commas and
+newlines, `\r\n`/`\n` line endings, and a leading UTF-8 BOM are all handled.
+
 # Cell Features
 
 ## Dates
