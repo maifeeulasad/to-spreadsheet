@@ -49,7 +49,7 @@
   },
   "homepage": "https://github.com/maifeeulasad/to-spreadsheet#readme",
   "dependencies": {
-    "archiver": "^6.0.1",
+    "archiver": "^7.0.1",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1"
   },
@@ -59,11 +59,16 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "@types/archiver": "^5.3.3",
+    "@types/archiver": "^6.0.4",
     "@types/file-saver": "^2.0.5",
     "@types/node": "^17.0.35",
     "ts-node": "^10.8.0",
     "typescript": "^4.7.2"
   },
-  "packageManager": "pnpm@10.25.0"
+  "packageManager": "pnpm@10.25.0",
+  "pnpm": {
+    "overrides": {
+      "lodash": ">=4.18.1"
+    }
+  }
 }
