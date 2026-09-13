@@ -7,7 +7,8 @@
  * @license MIT
  */
 
-import { IBorder, BorderStyle, ICellStyle, HorizontalAlignment, VerticalAlignment } from "..";
+import { IBorder, ICellStyle } from "..";
+import { BorderStyle, HorizontalAlignment, VerticalAlignment } from "../types";
 
 /**
  * Generates XML representation of border styling for a single border configuration
