@@ -22,3 +22,33 @@ So how/why these parts were defined? We simply took a simple excel(.xlsx) file a
 
 **We are way too noob, in this, but we can achieve something great for sure.**
 Thanks.
+
+# Building and testing
+
+We use [pnpm](https://pnpm.io/). Install once with `pnpm i`.
+
+```
+pnpm build        # compile TypeScript to lib/ (tsc)
+pnpm test         # run the vitest suite once
+pnpm test:watch   # re-run tests on change
+```
+
+## How the code is split
+
+- **Writer** — `generate-excel.ts` (orchestration), `util.ts` (cell helpers), and
+  the `xl/`, `docProps/`, `_rels/` generators that each emit one part of the
+  `.xlsx` package. These turn an `IPage[]` into the zipped OOXML file.
+- **Reader** — `read-excel.ts` (`readExcel`, unzips OOXML via JSZip and parses the
+  worksheet/sharedStrings/styles parts back into values) and `read-csv.ts`
+  (`parseCsv`, a dependency-free RFC 4180 parser). Both run in Node and the browser.
+- **Shared** — `types.ts` holds the runtime enums (`ICellType`, `BorderStyle`,
+  alignment) imported by both sides. Keep enums here, not in `index.ts`, so the
+  writer modules never import `index` at runtime (that cycle broke test-time
+  evaluation order).
+
+## Writing tests
+
+Tests live next to the code as `*.test.ts` (excluded from the published build).
+The reader tests build a workbook in memory with the writer and read it straight
+back — the round-trip is the strongest guarantee that the two halves agree, so
+prefer adding to it when you touch either side.
