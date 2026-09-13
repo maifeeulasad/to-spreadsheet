@@ -21,6 +21,9 @@ importers:
         specifier: ^3.10.1
         version: 3.10.2
     devDependencies:
+      '@tsconfig/node16':
+        specifier: 1.0.4
+        version: 1.0.4
       '@types/archiver':
         specifier: ^6.0.4
         version: 6.0.4
